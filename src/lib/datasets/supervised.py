@@ -10,8 +10,9 @@ class SupervisedTelugu(Dataset):
     def __init__(self, train=False, val=False, test=False, transforms=None):
         super().__init__()
         self.path = Path('../../../data')
-        self.f = open(self.path / 'UHTelPCC.pkl', 'rb')
-        self.dump = pickle.load(self.f, encoding='latin-1')
+        self.f = open(self.path / 'chars.pkl', 'rb')
+        self.dump = pickle.load(self.f)
+        self.f.close()
         (self.train_x, self.train_y), (self.val_x,
                                        self.val_y), (self.test_x, self.test_y) = self.dump
         self.train = train
