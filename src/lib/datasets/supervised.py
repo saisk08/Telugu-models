@@ -4,7 +4,7 @@ import pickle
 import torch
 
 
-class SupervisedTelugu(Dataset):
+class Supervised(Dataset):
     '''Dataset class for telugu chars; supervised version'''
 
     def __init__(self, train=False, val=False, test=False, transforms=None):
