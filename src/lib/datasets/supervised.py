@@ -7,10 +7,13 @@ import torch
 class Supervised(Dataset):
     '''Dataset class for telugu chars; supervised version'''
 
-    def __init__(self, train=False, val=False, test=False, transforms=None):
+    def __init__(self, train=False, val=False, test=False, transforms=None, size=None):
         super().__init__()
-        self.path = Path('../../../data')
-        self.f = open(self.path / 'chars.pkl', 'rb')
+        self.path = Path('../../../data/supervised')
+        if size is None:
+            self.f = open(self.path / 'chars.pkl', 'rb')
+        else:
+            self.f = open(self.path / 'char_{}.pkl'.format(size), 'rb')
         self.dump = pickle.load(self.f)
         self.f.close()
         (self.train_x, self.train_y), (self.val_x,
