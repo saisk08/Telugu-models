@@ -78,12 +78,11 @@ class Trainer():
         for epoch in range(epochs):
             self.model.train()
             for xb, yb in self.train_dl:
-                self.loss_batch(xb.to(self.device), yb.to(self.device))
+                self.loss_batch(xb, yb)
 
             self.model.eval()
             with torch.no_grad():
-                losses, nums = zip(*[self.loss_batch(xb.to(self.device),
-                                                     yb.to(self.device))
+                losses, nums = zip(*[self.loss_batch(xb, yb)
                                      for xb, yb in self.valid_dl])
 
             val_loss = np.sum(np.multiply(losses, nums)) / np.sum(nums)
