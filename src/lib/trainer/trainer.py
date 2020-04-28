@@ -3,6 +3,10 @@ from torch import nn, optim
 from torchvision import transforms
 import torch
 import numpy as np
+from datasets.supervised import Supervised
+from datasets.rdm import Rdms
+from utils.data import WrappedDataLoader
+from networks import resnet, densenet, normal
 
 
 def preprocess(x, y):
@@ -11,21 +15,46 @@ def preprocess(x, y):
     return x.view(-1, 1, 32, 32).to(device), y.to(device)
 
 
-def create_trainer(mode, lr=3e-3, bs=32):
+def get_dls(train_ds, valid_ds, bs):
+    return (
+        DataLoader(train_ds, batch_size=bs, shuffle=True, num_workers=4),
+        DataLoader(valid_ds, batch_size=bs * 2, num_workers=4),
+    )
+
+
+def create_trainer(mode, model_type, lr=3e-3, bs=32, size=30):
     tfms = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0, 0, 0), (1, 1, 1))
     ])
-    # Create train sets
-    # Create dataloaders; wrap it
-    # Get loss and model
-    train_dl = DataLoader(trainset, batch_size=bs,
-                          num_workers=4, transforms=tfms)
-    valid_dl = DataLoader(validset, batch_size=bs, num_workers=4)
+    # Create a trainer depending on the mode
     if mode == 'supervised':
+        train_ds = Supervised('train', transforms=tfms, size=size)
+        valid_ds = Supervised('val', transforms=tfms, size=size)
+        train_dl, valid_dl = get_dls(train_ds, valid_ds)
+        train_dl = WrappedDataLoader(train_dl, preprocess)
+        valid_dl = WrappedDataLoader(valid_dl, preprocess)
         loss_func = nn.CrossEntropyLoss()
-    else:
+        if model_type == 'resnet':
+            model = resnet.Telnet()
+        elif model_type == 'desne':
+            model = densenet.Telnet()
+        elif model_type == 'normal':
+            model = normal.Telnet()
+    elif mode == 'siamese':
+        train_ds = Rdms('train', transforms=tfms, size=size)
+        valid_ds = Rdms('val', transforms=tfms, size=size)
+        train_dl, valid_dl = get_dls(train_ds, valid_ds)
+        train_dl = WrappedDataLoader(train_dl, preprocess)
+        valid_dl = WrappedDataLoader(valid_dl, preprocess)
         loss_func = nn.MSELoss()
+        if model_type == 'resnet':
+            model = resnet.Siameserdm()
+        elif model_type == 'desne':
+            model = densenet.Siameserdm()
+        elif model_type == 'normal':
+            model = normal.Siameserdm()
+
     return Trainer(model, train_dl, valid_dl, loss_func, lr)
 
 
@@ -36,7 +65,6 @@ class Trainer():
         self.valid_dl = valid_dl
         self.loss_func = loss_func
         self.opt = optim.Adam(self.model.parameters(), lr=lr)
-        self.device =
         self.model.to(self.device)
 
     def loss_batch(self, xb, yb):
