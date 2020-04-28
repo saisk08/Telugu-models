@@ -25,7 +25,7 @@ def get_dls(train_ds, valid_ds, bs):
 def create_trainer(mode, model_type, lr=3e-3, bs=32, size=30):
     tfms = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0, 0, 0), (1, 1, 1))
+        transforms.Normalize()
     ])
     # Create a trainer depending on the mode
     if mode == 'supervised':
