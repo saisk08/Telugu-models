@@ -86,5 +86,4 @@ class Trainer():
                                      for xb, yb in self.valid_dl])
 
             val_loss = np.sum(np.multiply(losses, nums)) / np.sum(nums)
-
-        print('Epoch: {}, val loss: {}'.format(epoch + 1, val_loss))
+            print('Epoch: {}, val loss: {}'.format(epoch + 1, val_loss))
