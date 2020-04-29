@@ -7,6 +7,7 @@ from datasets.supervised import Supervised
 from datasets.rdm import Rdms
 from utils.data import WrappedDataLoader
 from networks import resnet, densenet, normal
+from utils import io, logger
 
 
 def preprocess(x, y):
@@ -22,7 +23,7 @@ def get_dls(train_ds, valid_ds, bs):
     )
 
 
-def create_trainer(mode, model_type, lr=3e-3, bs=32, size=30):
+def create_trainer(exp_id, mode, model_type, lr=3e-3, bs=32, size=30):
     tfms = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize()
@@ -54,16 +55,18 @@ def create_trainer(mode, model_type, lr=3e-3, bs=32, size=30):
             model = densenet.Siameserdm()
         elif model_type == 'normal':
             model = normal.Siameserdm()
-
-    return Trainer(model, train_dl, valid_dl, loss_func, lr)
+    log = logger.Logger(exp_id, mode, model_type)
+    return Trainer(model, train_dl, valid_dl, loss_func, lr, log)
 
 
 class Trainer():
-    def __init__(self, model, train_dl, valid_dl, loss_func, lr):
+    def __init__(self, model, train_dl, valid_dl, loss_func, lr, logger):
         self.model = model
         self.train_dl = train_dl
         self.valid_dl = valid_dl
         self.loss_func = loss_func
+        self.logger = logger
+        self.logger.log_summary(self.model, (1, 32, 32))
         self.opt = optim.Adam(self.model.parameters(), lr=lr)
         self.model.to(self.device)
 
@@ -78,12 +81,16 @@ class Trainer():
         for epoch in range(epochs):
             self.model.train()
             for xb, yb in self.train_dl:
-                self.loss_batch(xb, yb)
+                train_loss = self.loss_batch(xb, yb)
 
             self.model.eval()
             with torch.no_grad():
-                losses, nums = zip(*[self.loss_batch(xb, yb)
-                                     for xb, yb in self.valid_dl])
+                val_losses, nums = zip(*[self.loss_batch(xb, yb)
+                                         for xb, yb in self.valid_dl])
 
-            val_loss = np.sum(np.multiply(losses, nums)) / np.sum(nums)
-            print('Epoch: {}, val loss: {}'.format(epoch + 1, val_loss))
+            val_loss = np.sum(np.multiply(val_losses, nums)) / np.sum(nums)
+            print('Epoch: {}, train loss: {}, val loss: {}'.format(
+                epoch + 1, train_loss, val_loss))
+            self.logger.log([train_loss, val_loss])
+        self.logger.done()
+        io.save(self.model, self.logger.full_path)
