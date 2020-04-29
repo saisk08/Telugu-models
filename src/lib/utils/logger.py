@@ -5,12 +5,11 @@ from torchsummary import summary
 
 
 class Logger():
-    def __init__(self, exp_id, mode, model_type, model):
+    def __init__(self, exp_id, mode, model_type):
         self.exp_id = exp_id
         self.mode = mode
         self. model_type = model_type
         self.base = Path('../../../Logs')
-        self.m = model
         self.full_path = self.base / self.exp_id / self.mode / self.model_type
         self.loss_list = []
         os.makedirs(self.full_path)
