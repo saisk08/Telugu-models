@@ -1,14 +1,14 @@
 from trainer import create_trainer
 
 
-def get_trainers(size, mode, exp_id):
-    return [create_trainer(exp_id, mode, 'normal', size=size),
-            create_trainer(exp_id, mode, 'resent', size=size),
+def get_trainers(size, mode, exp_id, lr):
+    return [create_trainer(exp_id, mode, 'normal', size=size, lr=lr),
+            create_trainer(exp_id, mode, 'resent', size=size, lr=lr),
             create_trainer(exp_id, mode, 'dense', size=size)]
 
 
-def sizes(sl, mode, exp_id):
-    return [get_trainers(x, mode, exp_id) for x in sl]
+def sizes(sl, mode, exp_id, lr):
+    return [get_trainers(x, mode, exp_id, lr) for x in sl]
 
 
 class BaseTrainer():
@@ -26,8 +26,8 @@ class BatchTrainer(BaseTrainer):
         self.epoch_list = epoch_list
 
         for epoch in self.epoch_list:
-            sup_trainers = sizes(self.size_list, 'supervised', self.exp_id)
-            sia_trainers = sizes(self.size_list, 'siamese', self.exp_id)
+            sup_trainers = sizes(self.size_list, 'supervised', self.exp_id, lr)
+            sia_trainers = sizes(self.size_list, 'siamese', self.exp_id, lr)
             self.batch = [sup_trainers, sia_trainers]
 
     def do_experiments(self):
@@ -43,8 +43,8 @@ class SingleTrainer(BaseTrainer):
         self.epochs = epochs
 
         for epoch in self.epoch_list:
-            sup_trainers = sizes(self.size_list, 'supervised', self.exp_id)
-            sia_trainers = sizes(self.size_list, 'siamese', self.exp_id)
+            sup_trainers = sizes(self.size_list, 'supervised', self.exp_id, lr)
+            sia_trainers = sizes(self.size_list, 'siamese', self.exp_id, lr)
             self.batch = [sup_trainers, sia_trainers]
 
     def do_experiments(self):
@@ -59,7 +59,8 @@ class BasicTrainer(BaseTrainer):
         self.epochs = epochs
 
         for epoch in self.epoch_list:
-            self.batch = [create_trainer(self.exp_id, mode, model_type, size=x)
+            self.batch = [create_trainer(self.exp_id, mode, model_type, size=x,
+                                         lr=lr)
                           for x in self.size_list]
 
     def do_experiments(self):
