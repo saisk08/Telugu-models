@@ -3,14 +3,16 @@ import os
 import pickle
 from torchsummary import summary
 from matplotlib import pyplot as plt
+from datetime import datetime
 
 
 class Logger():
-    def __init__(self, exp_id, mode, model_type):
+    def __init__(self, exp_id, mode, model_type, test=False):
         self.exp_id = exp_id
         self.mode = mode
         self. model_type = model_type
-        self.base = Path('../../../Logs')
+        self.base = Path(
+            '../../../Logs') if not test else Path('../../../Results')
         self.full_path = self.base / self.exp_id / self.mode / self.model_type
         self.loss_list = []
         os.makedirs(self.full_path)
@@ -34,6 +36,11 @@ class Logger():
         plt.title('{}; {}; {}'.format(self.exp_id, self.mode, self.model_type))
         plt.legend()
         plt.close()
+
+    def add_result(self, val):
+        f = open(self.full_path / 'results.txt', 'a+')
+        f.write('Accuarcy: {}, timestamp: {}'.format(val, datetime.now()))
+        f.close()
 
     def done(self):
         pkl = open(self.full_path / 'loss.pkl', 'wb')
