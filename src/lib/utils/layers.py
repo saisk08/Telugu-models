@@ -5,7 +5,7 @@ import torch
 def conv_block(in_channels, out_channels, kernel_size=3, stride=1, padding=1):
     return nn.Sequential(
         nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding),
-        nn.BatchNorm(out_channels),
+        nn.BatchNorm2d(out_channels),
         nn.ReLU()
     )
 
