@@ -37,12 +37,15 @@ class Logger():
         loss = np.array(self.loss_list)
         plt.plot(a, loss[:, 0], label='Train loss')
         plt.plot(a, loss[:, 1], label='Val loss')
-        plt.plot(a, loss[:, 2], label='Accuracy')
         plt.xlabel('Epochs')
         plt.ylabel('Metrics')
         plt.title('{}; {}; {}'.format(self.exp_id, self.mode, self.model_type))
         plt.legend()
-        plt.savefig(self.full_path / 'plot_{}.png'.format(self.size))
+        plt.savefig(self.full_path / 'loss_{}.png'.format(self.size))
+        plt.close()
+        plt.plot(a, loss[:, 2], label='Accuracy')
+        plt.title('{}; {}; {}'.format(self.exp_id, self.mode, self.model_type))
+        plt.savefig(self.full_path / 'acc_{}.png'.format(self.size))
         plt.close()
 
     def add_result(self, val):
