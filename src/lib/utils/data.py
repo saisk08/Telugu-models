@@ -2,6 +2,7 @@ import torch
 
 
 def preprocess(x, y):
+    x = x / 255
     device = torch.device(
         'cuda' if torch.cuda.is_available() else 'cpu')
     return x.view(-1, 1, 32, 32).to(device), y.to(device)
