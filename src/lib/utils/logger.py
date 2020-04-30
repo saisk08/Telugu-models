@@ -7,13 +7,12 @@ from datetime import datetime
 
 
 class Logger():
-    def __init__(self, exp_id, mode, model_type, size, test=False):
+    def __init__(self, exp_id, mode, model_type, size):
         self.exp_id = exp_id
         self.mode = mode
         self. model_type = model_type
         self.size = size
-        self.base = Path(
-            '../../../Logs') if not test else Path('../../../Results')
+        self.base = Path('../../../Logs')
         self.full_path = self.base / self.exp_id / self.mode / self.model_type
         self.loss_list = []
         os.makedirs(self.full_path)
