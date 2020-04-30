@@ -23,17 +23,18 @@ class Rdms(Dataset):
         f.close()
         self.train, self.val, self.test = self.train.astype(
             np.uint8), self.val.astype(np.uint8), self.test.astype(np.uint8)
+        # Because ta is not avaible
         if custom:
-            f = open(self.path / 'rdms_custom.pkl', 'rb')
+            f = open(self.path / 'rdms_custom_w.pkl', 'rb')
         else:
-            f = open(self.path / 'rdm_minmax.pkl', 'rb')
+            f = open(self.path / 'rdm_minmax_w.pkl', 'rb')
         self.rdm = pickle.load(f)
 
         # Because one char is not available; index = 9
-        self.rdm = squareform(self.rdm)
-        self.rdm = np.delete(self.rdm, 9, 0)
-        self.rdm = np.delete(self.rdm, 9, 1)
-        self.rdm = squareform(self.rdm)
+        # self.rdm = squareform(self.rdm)
+        # self.rdm = np.delete(self.rdm, 9, 0)
+        # self.rdm = np.delete(self.rdm, 9, 1)
+        # self.rdm = squareform(self.rdm)
 
         self.mode = mode
         self.tfms = transforms
