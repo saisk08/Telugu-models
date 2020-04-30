@@ -1,5 +1,4 @@
 from trainer import create_trainer
-import torch
 
 
 def get_trainers(size, mode, exp_id):
@@ -66,12 +65,3 @@ class BasicTrainer(BaseTrainer):
     def do_experiments(self):
         for t in self.batch:
             t.fit(self.epochs)
-
-
-class RMSELoss(torch.nn.Module):
-    def __init__(self, eps=1e-6):
-        super().__init__()
-        self.mse = torch.nn.MSELoss()
-        self.eps = eps
-
-    def forward(self, yhat, y): return torch.sqrt(self.mse(yhat, y) + self.eps)
