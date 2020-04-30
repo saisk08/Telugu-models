@@ -110,6 +110,6 @@ class Trainer():
 
         print('Epoch: {}, train loss: {}, val loss: {}, Acc: {}'.format(
             epoch + 1, loss, val_loss, acc))
-        self.logger.log([loss, val_loss, acc])
+        self.logger.log([epoch, loss, val_loss, acc])
         self.logger.done()
         io.save(self.model, self.logger.full_path)

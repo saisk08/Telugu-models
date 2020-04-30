@@ -2,6 +2,7 @@ from pathlib import Path
 import os
 import pickle
 from torchsummary import summary
+from matplotlib import pyplot as plt
 
 
 class Logger():
@@ -22,7 +23,20 @@ class Logger():
     def log(self, loss_list):
         self.loss_list.append(loss_list)
 
+    def plot(self):
+        plt.plot(self.loss_list[:, 0],
+                 self.loss_list[:, 1], label='Train loss')
+        plt.plot(self.loss_list[:, 0],
+                 self.loss_list[:, 2], label='Val loss')
+        plt.plot(self.loss_list[:, 0],
+                 self.loss_list[:, 3], label='Accuracy')
+        plt.savefig(self.full_path / 'plot.png')
+        plt.title('{}; {}; {}'.format(self.exp_id, self.mode, self.model_type))
+        plt.legend()
+        plt.close()
+
     def done(self):
         pkl = open(self.full_path / 'loss.pkl', 'wb')
+        self.plot()
         pickle.dump(self.loss_list, pkl)
         pkl.close()
