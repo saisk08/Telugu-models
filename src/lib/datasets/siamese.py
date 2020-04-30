@@ -3,6 +3,7 @@ from pathlib import Path
 import pickle
 import torch
 import numpy as np
+import os
 
 
 class Siamese(Dataset):
@@ -10,23 +11,27 @@ class Siamese(Dataset):
 
     def __init__(self, mode=None, transforms=None, size=None):
         super().__init__()
+        this_file = os.path.dirname(__file__)
         self.path = Path('../../../data/siamese')
+        self.path = Path(os.path.join(this_file, self.path))
         if size is None:
             f = open(self.path / 'chars.pkl', 'rb')
         else:
-            f = open(self.path / 'char_{}.pkl'.format(size), 'rb')
+            f = open(self.path / 'chars_{}.pkl'.format(size), 'rb')
         self.train, self.val, self.test = pickle.load(f)
+        self.train, self.val, self.test = self.train.astype(
+            np.uint8), self.val.astype(np.uint8), self.test.astype(np.uint8)
         f.close()
         self.mode = mode
         self.tfms = transforms
 
     def __len__(self):
         if self.mode == 'train':
-            return np.multiply(*self.train[[0, 2]])
+            return np.multiply(*self.train.shape[[0, 2]])
         if self.mode == 'val':
-            return np.multiply(*self.val[[0, 2]])
+            return np.multiply(*self.val.shape[[0, 2]])
         if self.mode == 'test':
-            return np.multiply(*self.test[[0, 2]])
+            return np.multiply(*self.test.shape[[0, 2]])
 
     def __getitem__(self, index):
         if torch.is_tensor(index):
