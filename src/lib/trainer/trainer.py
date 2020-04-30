@@ -93,4 +93,4 @@ class Trainer():
             epoch + 1, loss, val_loss, acc))
         self.logger.log([epoch, loss, val_loss, acc])
         self.logger.done()
-        io.save(self.model, self.logger.full_path)
+        io.save(self.model, self.logger.full_path, self.size)
