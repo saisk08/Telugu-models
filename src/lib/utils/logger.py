@@ -43,7 +43,7 @@ class Logger():
         plt.legend()
         plt.savefig(self.full_path / 'loss_{}.png'.format(self.size))
         plt.close()
-        plt.plot(a, loss[:, 2], label='Accuracy')
+        plt.plot(a, loss[:, 2] * 100, label='Accuracy')
         plt.title('{}; {}; {}'.format(self.exp_id, self.mode, self.model_type))
         plt.savefig(self.full_path / 'acc_{}.png'.format(self.size))
         plt.close()
