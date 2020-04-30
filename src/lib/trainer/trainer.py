@@ -6,7 +6,7 @@ from datasets.supervised import Supervised
 from datasets.rdm import Rdms
 from utils.data import WrappedDataLoader
 from networks import resnet, densenet, normal
-from utils import io, logger
+from utils import io, logger, metrics
 
 
 class RMSELoss(torch.nn.Module):
@@ -31,10 +31,6 @@ def get_dls(train_ds, valid_ds, bs):
     )
 
 
-def accuracy(out, yb): return (
-    torch.argmax(out, dim=1) == yb).float().mean()
-
-
 def create_trainer(exp_id, mode, model_type, lr=3e-3, bs=32, size=30):
     tfms = transforms.Compose([
         transforms.ToTensor(),
@@ -54,7 +50,7 @@ def create_trainer(exp_id, mode, model_type, lr=3e-3, bs=32, size=30):
             model = densenet.Telnet()
         elif model_type == 'normal':
             model = normal.Telnet()
-        metric = accuracy
+        metric = metrics.cross_acc
     elif mode == 'siamese':
         train_ds = Rdms('train', transforms=tfms, size=size)
         valid_ds = Rdms('val', transforms=tfms, size=size)
