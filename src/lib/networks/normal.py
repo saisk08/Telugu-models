@@ -6,7 +6,7 @@ def conv(ic, oc): return conv_block(ic, oc, kernel_size=3, stride=2, padding=1)
 
 
 class Telnet(nn.Module):
-    def __init__(self, out):
+    def __init__(self):
         super().__init__()
         self.net = nn.Sequential(
             conv(1, 8),  # 16
@@ -21,7 +21,7 @@ class Telnet(nn.Module):
 
 
 class Siameserdm(nn.Module):
-    def __init__(self, out):
+    def __init__(self):
         super().__init__()
         self.feats = nn.Sequential(
             conv(1, 8),  # 16
@@ -41,9 +41,9 @@ class Siameserdm(nn.Module):
 
 
 class Siamesecat(nn.Module):
-    def __init__(self, out):
+    def __init__(self):
         super().__init__()
-        self.net = self.create(out)
+        self.net = self.create()
 
     def conv(self, ic, oc): return conv_block(
         ic, oc, kernel_szie=3, stride=2, padding=1)
