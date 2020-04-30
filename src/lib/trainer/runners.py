@@ -1,4 +1,4 @@
-from trainer import create_trainer
+from .trainer import create_trainer
 
 
 def get_trainers(size, mode, exp_id, lr):
@@ -22,7 +22,7 @@ class BaseTrainer():
 
 class BatchTrainer(BaseTrainer):
     def __init__(self, lr, epoch_list, exp_id):
-        super().__init__(self, exp_id)
+        super().__init__(exp_id)
         self.epoch_list = epoch_list
 
         for epoch in self.epoch_list:
@@ -39,7 +39,7 @@ class BatchTrainer(BaseTrainer):
 
 class SingleTrainer(BaseTrainer):
     def __init__(self, lr, epochs, exp_id):
-        super().__init__(self, exp_id)
+        super().__init__(exp_id)
         self.epochs = epochs
 
         for epoch in self.epoch_list:
@@ -55,13 +55,11 @@ class SingleTrainer(BaseTrainer):
 
 class BasicTrainer(BaseTrainer):
     def __init__(self, lr, epochs, mode, model_type, exp_id):
-        super().__init__(self, exp_id)
+        super().__init__(exp_id)
         self.epochs = epochs
 
-        for epoch in self.epoch_list:
-            self.batch = [create_trainer(self.exp_id, mode, model_type, size=x,
-                                         lr=lr)
-                          for x in self.size_list]
+        self.batch = [create_trainer(self.exp_id, mode, model_type, size=x,
+                                     lr=lr) for x in self.size_list]
 
     def do_experiments(self):
         for t in self.batch:

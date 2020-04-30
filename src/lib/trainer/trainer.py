@@ -9,17 +9,16 @@ from networks import resnet, densenet, normal
 from utils import io, logger, metrics
 
 
-def get_dls(train_ds, valid_ds, bs):
+def get_dls(train_ds, valid_ds, bs=16):
     return (
-        DataLoader(train_ds, batch_size=bs, shuffle=True, num_workers=4),
-        DataLoader(valid_ds, batch_size=bs * 2, num_workers=4),
+        DataLoader(train_ds, batch_size=bs, shuffle=True, num_workers=0),
+        DataLoader(valid_ds, batch_size=bs * 2, num_workers=0),
     )
 
 
 def create_trainer(exp_id, mode, model_type, lr=3e-3, bs=32, size=30):
     tfms = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize()
+        transforms.ToTensor()
     ])
     # Create a trainer depending on the mode
     if mode == 'supervised':
@@ -63,11 +62,15 @@ class Trainer():
         self.loss_func = loss_func
         self.logger = logger
         self.metric = metric
+        self.lr = lr
         self.logger.log_summary(self.model, (1, 32, 32))
         self.opt = optim.Adam(self.model.parameters(), lr=lr)
+        self.device = torch.device(
+            'cuda' if torch.cuda.is_available() else 'cpu')
         self.model.to(self.device)
 
     def fit(self, epochs):
+        self.logger.log_info(epochs, self.lr)
         for epoch in range(epochs):
             self.model.train()
             for xb, yb in self.train_dl:
@@ -88,9 +91,9 @@ class Trainer():
             nv = len(self.valid_dl)
             val_loss = tot_loss / nv
             acc = tot_acc / nv
+            print('Epoch: {}, train loss: {:.4f}, val loss: {:.4f}, Acc: {:.4f}'.format(
+                epoch + 1, loss, val_loss, acc * 100))
+            self.logger.log([loss, val_loss, acc])
 
-        print('Epoch: {}, train loss: {}, val loss: {}, Acc: {}'.format(
-            epoch + 1, loss, val_loss, acc))
-        self.logger.log([epoch, loss, val_loss, acc])
         self.logger.done()
-        io.save(self.model, self.logger.full_path, self.size)
+        io.save(self.model, self.logger.full_path, self.logger.size)
