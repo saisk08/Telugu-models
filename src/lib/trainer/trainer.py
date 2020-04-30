@@ -9,21 +9,6 @@ from networks import resnet, densenet, normal
 from utils import io, logger, metrics
 
 
-class RMSELoss(torch.nn.Module):
-    def __init__(self, eps=1e-6):
-        super().__init__()
-        self.mse = torch.nn.MSELoss()
-        self.eps = eps
-
-    def forward(self, yhat, y): return torch.sqrt(self.mse(yhat, y) + self.eps)
-
-
-def preprocess(x, y):
-    device = torch.device(
-        'cuda' if torch.cuda.is_available() else 'cpu')
-    return x.view(-1, 1, 32, 32).to(device), y.to(device)
-
-
 def get_dls(train_ds, valid_ds, bs):
     return (
         DataLoader(train_ds, batch_size=bs, shuffle=True, num_workers=4),
@@ -41,8 +26,8 @@ def create_trainer(exp_id, mode, model_type, lr=3e-3, bs=32, size=30):
         train_ds = Supervised('train', transforms=tfms, size=size)
         valid_ds = Supervised('val', transforms=tfms, size=size)
         train_dl, valid_dl = get_dls(train_ds, valid_ds)
-        train_dl = WrappedDataLoader(train_dl, preprocess)
-        valid_dl = WrappedDataLoader(valid_dl, preprocess)
+        train_dl = WrappedDataLoader(train_dl)
+        valid_dl = WrappedDataLoader(valid_dl)
         loss_func = nn.CrossEntropyLoss()
         if model_type == 'resnet':
             model = resnet.Telnet()
@@ -55,9 +40,9 @@ def create_trainer(exp_id, mode, model_type, lr=3e-3, bs=32, size=30):
         train_ds = Rdms('train', transforms=tfms, size=size)
         valid_ds = Rdms('val', transforms=tfms, size=size)
         train_dl, valid_dl = get_dls(train_ds, valid_ds)
-        train_dl = WrappedDataLoader(train_dl, preprocess)
-        valid_dl = WrappedDataLoader(valid_dl, preprocess)
-        loss_func = RMSELoss()
+        train_dl = WrappedDataLoader(train_dl)
+        valid_dl = WrappedDataLoader(valid_dl)
+        loss_func = metrics.RMSELoss()
         if model_type == 'resnet':
             model = resnet.Siameserdm()
         elif model_type == 'desne':
