@@ -1,9 +1,10 @@
 from pathlib import Path
 import os
-import pickle
+import torch
 from torchsummary import summary
 from matplotlib import pyplot as plt
 from datetime import datetime
+import numpy as np
 
 
 class Logger():
@@ -12,29 +13,36 @@ class Logger():
         self.mode = mode
         self. model_type = model_type
         self.size = size
-        self.base = Path('../../../Logs')
+        base = os.path.dirname(__file__)
+        self.base = Path(os.path.join(base, '../../../Logs'))
         self.full_path = self.base / self.exp_id / self.mode / self.model_type
         self.loss_list = []
-        os.makedirs(self.full_path)
+        os.makedirs(self.full_path, exist_ok=True)
 
     def log_summary(self, model, input_shape):
         sum_file = open(self.full_path / 'summary.txt', 'w+')
-        sum_file.write(str(summary(model, input_data=input_shape, verbose=0)))
+        sum_file.write(
+            str(summary(model, input_data=input_shape, verbose=0, depth=4)))
         sum_file.close()
 
     def log(self, loss_list):
         self.loss_list.append(loss_list)
 
+    def log_info(self, epochs, lr):
+        print('\n\nModel: {}; Mode:{};  Size: {}\nEpochs: {}; lr: {}\n\n'.format(
+            self.model_type, self.mode, self.size, epochs, lr))
+
     def plot(self):
-        plt.plot(self.loss_list[:, 0],
-                 self.loss_list[:, 1], label='Train loss')
-        plt.plot(self.loss_list[:, 0],
-                 self.loss_list[:, 2], label='Val loss')
-        plt.plot(self.loss_list[:, 0],
-                 self.loss_list[:, 3], label='Accuracy')
-        plt.savefig(self.full_path / 'plot_{}.png'.format(self.size))
+        a = np.arange(1, len(self.loss_list) + 1)
+        loss = np.array(self.loss_list)
+        plt.plot(a, loss[:, 0], label='Train loss')
+        plt.plot(a, loss[:, 1], label='Val loss')
+        plt.plot(a, loss[:, 2], label='Accuracy')
+        plt.xlabel('Epochs')
+        plt.ylabel('Metrics')
         plt.title('{}; {}; {}'.format(self.exp_id, self.mode, self.model_type))
         plt.legend()
+        plt.savefig(self.full_path / 'plot_{}.png'.format(self.size))
         plt.close()
 
     def add_result(self, val):
@@ -44,7 +52,5 @@ class Logger():
         f.close()
 
     def done(self):
-        pkl = open(self.full_path / 'loss.pkl', 'wb')
+        torch.save(self.loss_list, self.full_path / 'loss.pth')
         self.plot()
-        pickle.dump(self.loss_list, pkl)
-        pkl.close()
