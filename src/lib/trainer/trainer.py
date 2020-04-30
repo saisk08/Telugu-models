@@ -92,7 +92,7 @@ class Trainer():
             nv = len(self.valid_dl)
             val_loss = tot_loss / nv
             acc = tot_acc / nv
-            print('Epoch: {}, train loss: {:.4f}, val loss: {:.4f}, Acc: {:.4f}'.format(
+            print('Epoch: {}, train loss: {:.6f}, val loss: {:.6f}, Acc: {:.6f}'.format(
                 epoch + 1, loss, val_loss, acc * 100))
             self.logger.log([loss, val_loss, acc])
 
