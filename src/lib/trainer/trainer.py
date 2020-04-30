@@ -64,7 +64,8 @@ class Trainer():
         self.metric = metric
         self.lr = lr
         self.logger.log_summary(self.model, (1, 32, 32))
-        self.opt = optim.Adam(self.model.parameters(), lr=lr)
+        self.opt = optim.SGD(self.model.parameters(), lr=lr,
+                             momentum=0.9, weight_decay=0.02)
         self.device = torch.device(
             'cuda' if torch.cuda.is_available() else 'cpu')
         self.model.to(self.device)
