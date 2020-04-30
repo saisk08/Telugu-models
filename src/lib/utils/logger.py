@@ -22,7 +22,7 @@ class Logger():
     def log_summary(self, model, input_shape):
         sum_file = open(self.full_path / 'summary.txt', 'w+')
         sum_file.write(
-            str(summary(model, input_data=input_shape, verbose=0, depth=4)))
+            str(summary(model, input_data=input_shape, verbose=0, depth=5)))
         sum_file.close()
 
     def log(self, loss_list):
