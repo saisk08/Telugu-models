@@ -7,10 +7,11 @@ from datetime import datetime
 
 
 class Logger():
-    def __init__(self, exp_id, mode, model_type, test=False):
+    def __init__(self, exp_id, mode, model_type, size, test=False):
         self.exp_id = exp_id
         self.mode = mode
         self. model_type = model_type
+        self.size = size
         self.base = Path(
             '../../../Logs') if not test else Path('../../../Results')
         self.full_path = self.base / self.exp_id / self.mode / self.model_type
@@ -32,14 +33,15 @@ class Logger():
                  self.loss_list[:, 2], label='Val loss')
         plt.plot(self.loss_list[:, 0],
                  self.loss_list[:, 3], label='Accuracy')
-        plt.savefig(self.full_path / 'plot.png')
+        plt.savefig(self.full_path / 'plot_{}.png'.format(self.size))
         plt.title('{}; {}; {}'.format(self.exp_id, self.mode, self.model_type))
         plt.legend()
         plt.close()
 
     def add_result(self, val):
         f = open(self.full_path / 'results.txt', 'a+')
-        f.write('Accuarcy: {}, timestamp: {}'.format(val, datetime.now()))
+        f.write('Size: {}, Accuarcy: {}, timestamp: {}'.format(
+            self.size, val, datetime.now()))
         f.close()
 
     def done(self):

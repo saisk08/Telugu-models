@@ -65,7 +65,7 @@ def create_trainer(exp_id, mode, model_type, lr=3e-3, bs=32, size=30):
         elif model_type == 'normal':
             model = normal.Siameserdm()
         metric = None
-    log = logger.Logger(exp_id, mode, model_type)
+    log = logger.Logger(exp_id, mode, model_type, size)
     return Trainer(model, train_dl, valid_dl, loss_func, lr, log, metric)
 
 
