@@ -8,16 +8,31 @@ import numpy as np
 
 
 class Logger():
-    def __init__(self, exp_id, mode, model_type, size):
+    def __init__(self, exp_id, mode, model_type, size, lr, bs, version):
         self.exp_id = exp_id
         self.mode = mode
         self. model_type = model_type
         self.size = size
+        self.lr = lr
+        self.bs = bs
+        self.ver = version
         base = os.path.dirname(__file__)
         self.base = Path(os.path.join(base, '../../../Logs'))
         self.full_path = self.base / self.exp_id / self.mode / self.model_type
         self.loss_list = []
         os.makedirs(self.full_path, exist_ok=True)
+
+    def create_data(self):
+        f = open(self.full_path / 'data.txt', 'w+')
+        f.write('Mode: {}\n'.format(self.mode))
+        f.write('Model: {}\n'.format(self.model_type))
+        f.write('Exp ID: {}\n'.format(self.exp_id))
+        f.write('Epochs: {}\n'.format(self.epochs))
+        f.write('lr: {}\n'.format(self.lr))
+        f.write('Data size: {}\n'.format(self.size))
+        f.write('Batch size: {}\n'.format(self.bs))
+        f.write('RDM version: {}\n'.format(self.ver))
+        f.close()
 
     def log_summary(self, model, input_shape):
         sum_file = open(self.full_path / 'summary.txt', 'w+')
@@ -29,6 +44,9 @@ class Logger():
         self.loss_list.append(loss_list)
 
     def log_info(self, epochs, lr):
+        self.epochs = epochs
+        self.create_data()
+
         print('\n\nModel: {}; Mode:{};  Size: {}\nEpochs: {}; lr: {}\n\n'.format(
             self.model_type, self.mode, self.size, epochs, lr))
 

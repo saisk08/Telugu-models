@@ -49,7 +49,7 @@ def create_trainer(exp_id, mode, model_type, lr=3e-3, bs=32, size=30, version=No
         model = densenet.Telnet()
     elif model_type == 'normal':
         model = normal.Telnet()
-    log = logger.Logger(exp_id, mode, model_type, size)
+    log = logger.Logger(exp_id, mode, model_type, size, lr, bs, version)
     return Trainer(model, train_dl, valid_dl, loss_func, lr, log, metric, mode)
 
 
