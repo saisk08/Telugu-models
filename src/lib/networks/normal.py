@@ -2,18 +2,18 @@ from torch import nn
 from utils.layers import conv_block
 
 
-def conv(ic, oc): return conv_block(ic, oc, kernel_size=3, stride=2, padding=1)
+def conv(ic, oc, **kwargs): return conv_block(ic, oc, **kwargs)
 
 
 class Telnet(nn.Module):
     def __init__(self):
         super().__init__()
         self.net = nn.Sequential(
-            conv(1, 8),  # 16
+            conv(1, 8, kernel_size=5, stride=2, padding=2),  # 16
             conv(8, 16),  # 8
             conv(16, 32),  # 4
-            conv(32, 64),  # 2
-            conv(64, 24),  # 1
+            conv(32, 24),  # 2
+            nn.AdaptiveAvgPool2d(1)
             nn.Flatten()
         )
 

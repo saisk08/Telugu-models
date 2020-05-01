@@ -2,15 +2,15 @@ from torch import nn
 from utils.layers import res_block, conv_block
 
 
-def conv(ic, oc): return conv_block(ic, oc, kernel_size=3, stride=2, padding=1)
+def conv(ic, oc, **kwargs): return conv_block(ic, oc, **kwargs)
 
 
 def res(c): return res_block(c)
 
 
-def conv_and_res(ic, oc):
+def conv_and_res(ic, oc, **kwargs):
     return nn.Sequential(
-        conv(ic, oc),
+        conv(ic, oc, **kwargs),
         res(oc)
     )
 
@@ -19,11 +19,11 @@ class Telnet(nn.Module):
     def __init__(self):
         super().__init__()
         self.net = nn.Sequential(
-            conv_and_res(1, 8),  # 16
+            conv_and_res(1, 8, kernel_size=5, stride=2, padding=2),  # 16
             conv_and_res(8, 16),  # 8
             conv_and_res(16, 32),  # 4
-            conv_and_res(32, 64),  # 2
-            conv(64, 24),  # 1
+            conv_and_res(32, 24),  # 2
+            nn.AdaptiveAvgPool2d(1)
             nn.Flatten()
         )
 
@@ -38,6 +38,7 @@ class Siameserdm(nn.Module):
             conv_and_res(8, 16),  # 8
             conv_and_res(16, 32),  # 4
             conv_and_res(32, 64)  # 2
+            conv(64, 24)
         )
         self.classifier = nn.Sequential(
             conv(64, 1),  # 1

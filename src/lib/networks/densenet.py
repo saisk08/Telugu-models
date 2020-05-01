@@ -2,28 +2,28 @@ from torch import nn
 from utils.layers import res_block, conv_block
 
 
-def conv(ic, oc): return conv_block(ic, oc, kernel_size=3, stride=2, padding=1)
+def conv(ic, oc, **kwargs): return conv_block(ic, oc, **kwargs)
 
 
 def dense(c): return res_block(c, dense=True)
 
 
-def conv_and_dense(ic, oc):
+def conv_and_dense(ic, oc, **kwargs):
     return nn.Sequential(
-        conv(ic, oc),
+        conv(ic, oc, **kwargs),
         dense(oc)
     )
 
 
 class Telnet(nn.Module):
-    def __init__(self, out):
+    def __init__(self):
         super().__init__()
         self.net = nn.Sequential(
-            conv_and_dense(1, 8),  # 16
-            conv_and_dense(8, 16),  # 8
-            conv_and_dense(16, 32),  # 4
-            conv_and_dense(32, 64),  # 2
-            conv(64, 24),  # 1
+            conv_and_res(1, 8, kernel_size=5, stride=2, padding=2),  # 16
+            conv_and_res(8, 16),  # 8
+            conv_and_res(16, 32),  # 4
+            conv_and_res(32, 24),  # 2
+            nn.AdaptiveAvgPool2d(1)
             nn.Flatten()
         )
 
