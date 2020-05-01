@@ -1,66 +1,42 @@
 from .trainer import create_trainer
 
 
-def get_trainers(size, mode, exp_id, lr):
-    return [create_trainer(exp_id, mode, 'normal', size=size, lr=lr),
-            create_trainer(exp_id, mode, 'resent', size=size, lr=lr),
-            create_trainer(exp_id, mode, 'dense', size=size)]
-
-
-def sizes(sl, mode, exp_id, lr):
-    return [get_trainers(x, mode, exp_id, lr) for x in sl]
-
-
-class BaseTrainer():
+class Teacher():
     def __init__(self, exp_id):
-        self.size_list = [30, 50, 100, 150, 200]
         self.exp_id = exp_id
+        self.exps = []
+        self.data_size = [30, 50, 100, 150, 200]
 
-    def do_experiments(self):
-        raise NotImplementedError
+    def get_types(self, model_type):
+        if model_type == 'all':
+            return ['resnet', 'normal', 'dense']
+        else:
+            return [model_type]
 
+    def get_sizes(self, sizes):
+        if sizes == 'all':
+            return self.data_size
+        elif isinstance(sizes, list):
+            return sizes
+        else:
+            return [sizes]
 
-class BatchTrainer(BaseTrainer):
-    def __init__(self, lr, epoch_list, exp_id):
-        super().__init__(exp_id)
-        self.epoch_list = epoch_list
+    def add_experiment(self, mode, model_type, size, lr, bs, epochs):
+        exp = {'trainer': create_trainer(
+            self.exp_id, mode, model_type, size, lr, bs),
+            'epochs': epochs}
+        self.exps.append(exp)
 
-        for epoch in self.epoch_list:
-            sup_trainers = sizes(self.size_list, 'supervised', self.exp_id, lr)
-            sia_trainers = sizes(self.size_list, 'siamese', self.exp_id, lr)
-            self.batch = [sup_trainers, sia_trainers]
+    def add_supervised(self, model_type, size, lr, bs):
+        for mt in self.get_types(model_type):
+            for s in self.get_sizes(size):
+                self.add_experiment('supervised', mt, s, lr, bs, epochs)
 
-    def do_experiments(self):
-        for epoch in self.epoch_list:
-            for trainers in self.batch:
-                for t in trainers:
-                    t.fit(epoch)
+    def add_siamese(info_list):
+        for mt in self.get_types(model_type):
+            for s in self.get_sizes(size):
+                self.add_experiment('siamese', mt, s, lr, bs, epochs)
 
-
-class SingleTrainer(BaseTrainer):
-    def __init__(self, lr, epochs, exp_id):
-        super().__init__(exp_id)
-        self.epochs = epochs
-
-        for epoch in self.epoch_list:
-            sup_trainers = sizes(self.size_list, 'supervised', self.exp_id, lr)
-            sia_trainers = sizes(self.size_list, 'siamese', self.exp_id, lr)
-            self.batch = [sup_trainers, sia_trainers]
-
-    def do_experiments(self):
-        for trainers in self.batch:
-            for t in trainers:
-                t.fit(self.epochs)
-
-
-class BasicTrainer(BaseTrainer):
-    def __init__(self, lr, epochs, mode, model_type, exp_id):
-        super().__init__(exp_id)
-        self.epochs = epochs
-
-        self.batch = [create_trainer(self.exp_id, mode, model_type, size=x,
-                                     lr=lr) for x in self.size_list]
-
-    def do_experiments(self):
-        for t in self.batch:
-            t.fit(self.epochs)
+    def do_exps(self):
+        for e in self.exps:
+            e['trainer'].fit(e['epochs'])
