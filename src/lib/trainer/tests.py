@@ -23,7 +23,7 @@ def create_examiner(exp_id, mode, model_type, bs=32, size=30):
     elif model_type == 'normal':
         model = normal.Telnet()
     loss_func = torch.nn.CrossEntropyLoss()
-    log = logger.Logger(exp_id, mode, model_type, size)
+    log = logger.Logger(exp_id, 'tested', model_type, size)
     test_dl = WrappedDataLoader(DataLoader(
         test_ds, batch_size=bs * 2, num_workers=4))
     model = io.load(model, exp_id, model_type, size, mode)
