@@ -133,7 +133,7 @@ class Trainer():
         io.save(self.model, self.logger.full_path, self.logger.size)
 
 
-def create_finetuner(exp_id, sup_id, model_type, lr=3e-3, bs=32, size=30):
+def create_finetuner(exp_id, sia_id, model_type, lr=3e-3, bs=32, size=30, version):
     mode = 'supervised'
     if model_type == 'resnet':
         model = resnet.Telnet()
@@ -142,7 +142,8 @@ def create_finetuner(exp_id, sup_id, model_type, lr=3e-3, bs=32, size=30):
     elif model_type == 'normal':
         model = normal.Telnet()
 
-    model = io.load(model, sup_id, model_type, size)
+    model = io.load(model, sia_id, model_type, size,
+                    mode='siamese', version=version)
     train_ds = Supervised('train', transforms=tfms, size=size)
     valid_ds = Supervised('val', transforms=tfms, size=size)
     train_dl, valid_dl = get_dls(train_ds, valid_ds)
