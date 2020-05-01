@@ -28,12 +28,6 @@ def create_trainer(exp_id, mode, model_type, lr=3e-3, bs=32, size=30):
         train_dl = WrappedDataLoader(train_dl, mode)
         valid_dl = WrappedDataLoader(valid_dl, mode)
         loss_func = nn.CrossEntropyLoss()
-        if model_type == 'resnet':
-            model = resnet.Telnet()
-        elif model_type == 'desne':
-            model = densenet.Telnet()
-        elif model_type == 'normal':
-            model = normal.Telnet()
         metric = metrics.cross_acc
     elif mode == 'siamese':
         train_ds = Rdms('train', transforms=tfms, size=size)
@@ -42,20 +36,21 @@ def create_trainer(exp_id, mode, model_type, lr=3e-3, bs=32, size=30):
         train_dl = WrappedDataLoader(train_dl, mode)
         valid_dl = WrappedDataLoader(valid_dl, mode)
         loss_func = metrics.RMSELoss()
-        if model_type == 'resnet':
-            model = resnet.Siameserdm()
-        elif model_type == 'desne':
-            model = densenet.Siameserdm()
-        elif model_type == 'normal':
-            model = normal.Siameserdm()
         metric = None
+
+    if model_type == 'resnet':
+        model = resnet.Telnet()
+    elif model_type == 'desne':
+        model = densenet.Telnet()
+    elif model_type == 'normal':
+        model = normal.Telnet()
     log = logger.Logger(exp_id, mode, model_type, size)
-    return Trainer(model, train_dl, valid_dl, loss_func, lr, log, metric)
+    return Trainer(model, train_dl, valid_dl, loss_func, lr, log, metric, mode)
 
 
 class Trainer():
     def __init__(self, model, train_dl, valid_dl, loss_func, lr, logger,
-                 metric):
+                 metric, mode):
         self.model = model
         self.train_dl = train_dl
         self.valid_dl = valid_dl
@@ -70,8 +65,7 @@ class Trainer():
             'cuda' if torch.cuda.is_available() else 'cpu')
         self.model.to(self.device)
 
-    def fit(self, epochs):
-        self.logger.log_info(epochs, self.lr)
+    def fit_supervised(self, epochs):
         for epoch in range(epochs):
             self.model.train()
             for xb, yb in self.train_dl:
@@ -95,6 +89,40 @@ class Trainer():
             print('Epoch: {}, train loss: {:.6f}, val loss: {:.6f}, Acc: {:.6f}'.format(
                 epoch + 1, loss, val_loss, acc * 100))
             self.logger.log([loss, val_loss, acc])
+
+    def fit_siamese(self, epochs):
+        for epoch in range(epochs):
+            self.model.train()
+            for x1b, x2b, rdm in self.train_dl:
+                out1 = self.model(x1b)
+                out2 = self.modle(x2b)
+                loss = self.loss_func(out1, out2, rdm)
+                loss.backward()
+                self.opt.step()
+                self.opt.zero_grad()
+
+            self.model.eval()
+            with torch.no_grad():
+                tot_loss, tot_acc = 0., 0.
+                for x1b, x2b, rdm in self.val_dl:
+                out1 = self.model(x1b)
+                out2 = self.modle(x2b)
+                temp = self.loss_func(out1, out2, rdm)
+                tot_loss += temp
+                tot_acc += 1 - temp
+            nv = len(self.valid_dl)
+            val_loss = tot_loss / nv
+            acc = tot_acc / nv
+            print('Epoch: {}, train loss: {:.6f}, val loss: {:.6f}, Acc: {:.6f}'.format(
+                epoch + 1, loss, val_loss, acc * 100))
+            self.logger.log([loss, val_loss, acc])
+
+    def fit(self, epochs):
+        self.logger.log_info(epochs, self.lr)
+        if mode == 'supervised':
+            self.fit_supervised()
+        elif mode == 'siamese':
+            self.fit_siamese()
 
         self.logger.done()
         io.save(self.model, self.logger.full_path, self.logger.size)
