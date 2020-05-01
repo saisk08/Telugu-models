@@ -1,17 +1,28 @@
 import torch
 
 
-def preprocess(x, y):
+def supervised(x, y):
     x = x / 255
     device = torch.device(
         'cuda' if torch.cuda.is_available() else 'cpu')
     return x.view(-1, 1, 32, 32).to(device), y.to(device)
 
 
+def siamese(a, b, y):
+    a = a / 255
+    b = b / 255
+    device = torch.device(
+        'cuda' if torch.cuda.is_available() else 'cpu')
+    return a.view(-1, 1, 32, 32).to(device), b.view(-1, 1, 32, 32).to(device), y.to(device)
+
+
 class WrappedDataLoader:
-    def __init__(self, dl, func=preprocess):
+    def __init__(self, dl, mode):
         self.dl = dl
-        self.func = func
+        if mode == 'supervised':
+            self.func = supervised
+        else:
+            self.func = siamese
 
     def __len__(self):
         return len(self.dl)

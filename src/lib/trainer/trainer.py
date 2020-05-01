@@ -25,8 +25,8 @@ def create_trainer(exp_id, mode, model_type, lr=3e-3, bs=32, size=30):
         train_ds = Supervised('train', transforms=tfms, size=size)
         valid_ds = Supervised('val', transforms=tfms, size=size)
         train_dl, valid_dl = get_dls(train_ds, valid_ds)
-        train_dl = WrappedDataLoader(train_dl)
-        valid_dl = WrappedDataLoader(valid_dl)
+        train_dl = WrappedDataLoader(train_dl, mode)
+        valid_dl = WrappedDataLoader(valid_dl, mode)
         loss_func = nn.CrossEntropyLoss()
         if model_type == 'resnet':
             model = resnet.Telnet()
@@ -39,8 +39,8 @@ def create_trainer(exp_id, mode, model_type, lr=3e-3, bs=32, size=30):
         train_ds = Rdms('train', transforms=tfms, size=size)
         valid_ds = Rdms('val', transforms=tfms, size=size)
         train_dl, valid_dl = get_dls(train_ds, valid_ds)
-        train_dl = WrappedDataLoader(train_dl)
-        valid_dl = WrappedDataLoader(valid_dl)
+        train_dl = WrappedDataLoader(train_dl, mode)
+        valid_dl = WrappedDataLoader(valid_dl, mode)
         loss_func = metrics.RMSELoss()
         if model_type == 'resnet':
             model = resnet.Siameserdm()
