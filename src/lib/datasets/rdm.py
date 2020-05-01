@@ -10,7 +10,7 @@ import os
 class Rdms(Dataset):
     '''Dataset class for telugu chars; siamese learning with rdms'''
 
-    def __init__(self, mode=None, custom=True, transforms=None, size=None):
+    def __init__(self, mode=None, custom=True, version1=True, transforms=None, size=None):
         super().__init__()
         this_file = os.path.dirname(__file__)
         self.path = Path('../../../data/siamese')
@@ -29,23 +29,22 @@ class Rdms(Dataset):
         else:
             f = open(self.path / 'rdm_minmax_w.pkl', 'rb')
         self.rdm = pickle.load(f)
+        f.close()
+        self.rdm = self.rdm[0] if version1 else self.rdm[1]
+        self.version = 1 if version1 else 2
 
         # Because one char is not available; index = 9
-        # self.rdm = squareform(self.rdm)
-        # self.rdm = np.delete(self.rdm, 9, 0)
-        # self.rdm = np.delete(self.rdm, 9, 1)
-        # self.rdm = squareform(self.rdm)
 
         self.mode = mode
         self.tfms = transforms
 
     def __len__(self):
         if self.mode == 'train':
-            return np.multiply(*self.train.shape[[0, 2]])
+            return self.train.shape[0] * self.train.shape[2]
         if self.mode == 'val':
-            return np.multiply(*self.val.shape[[0, 2]])
+            return self.val.shape[0] * self.val.shape[2]
         if self.mode == 'test':
-            return np.multiply(*self.test.shape[[0, 2]])
+            return self.test.shape[0] * self.test.shape[2]
 
     def __getitem__(self, index):
         if torch.is_tensor(index):
@@ -53,6 +52,7 @@ class Rdms(Dataset):
         if self.mode == 'train':
             cat = index // self.train.shape[2]
             ids = index // self.train.shape[0]
+            print(cat, ids, self.train.shape)
             img1, img2, label = self.train[cat, 0, ids], \
                 self.train[cat, 1, ids], self.rdm[cat]
         if self.mode == 'val':
