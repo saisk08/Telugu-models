@@ -2,15 +2,12 @@ import torch
 
 
 def supervised(x, y):
-    x = x / 255
     device = torch.device(
         'cuda' if torch.cuda.is_available() else 'cpu')
     return x.view(-1, 1, 32, 32).to(device), y.to(device)
 
 
 def siamese(a, b, y):
-    a = a / 255
-    b = b / 255
     device = torch.device(
         'cuda' if torch.cuda.is_available() else 'cpu')
     return a.view(-1, 1, 32, 32).to(device), b.view(-1, 1, 32, 32).to(device), y.to(device)
