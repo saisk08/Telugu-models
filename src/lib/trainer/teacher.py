@@ -22,10 +22,20 @@ class Teacher():
             return [sizes]
 
     def add_experiment(self, mode, model_type, size, lr, bs, epochs):
-        exp = {'trainer': create_trainer(
-            self.exp_id, mode, model_type, size, lr, bs),
-            'epochs': epochs}
-        self.exps.append(exp)
+        if mode == 'supervised':
+            exp = {'trainer': create_trainer(
+                self.exp_id, mode, model_type, size=size, lr=lr, bs=bs),
+                'epochs': epochs}
+            self.exps.append(exp)
+            return
+        exp1 = {'trainer': create_trainer(
+                self.exp_id, mode, model_type, size=size, lr=lr, bs=bs, version=1),
+                'epochs': epochs}
+        exp2 = {'trainer': create_trainer(
+                self.exp_id, mode, model_type, size=size, lr=lr, bs=bs, version=2),
+                'epochs': epochs}
+        self.append(exp1)
+        self.append(exp2)
 
     def add_supervised(self, model_type, size, lr, bs):
         for mt in self.get_types(model_type):

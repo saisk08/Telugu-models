@@ -16,7 +16,7 @@ def get_dls(train_ds, valid_ds, bs=16):
     )
 
 
-def create_trainer(exp_id, mode, model_type, lr=3e-3, bs=32, size=30):
+def create_trainer(exp_id, mode, model_type, lr=3e-3, bs=32, size=30, version=None):
     tfms = transforms.Compose([
         transforms.ToTensor()
     ])
@@ -30,8 +30,13 @@ def create_trainer(exp_id, mode, model_type, lr=3e-3, bs=32, size=30):
         loss_func = nn.CrossEntropyLoss()
         metric = metrics.cross_acc
     elif mode == 'siamese':
-        train_ds = Rdms('train', transforms=tfms, size=size)
-        valid_ds = Rdms('val', transforms=tfms, size=size)
+        if version == 1:
+            train_ds = Rdms('train', transforms=tfms, size=size, version1=True)
+            valid_ds = Rdms('val', transforms=tfms, size=size)
+        elif version == 2:
+            train_ds = Rdms('train', transforms=tfms,
+                            size=size, version1=False)
+            valid_ds = Rdms('val', transforms=tfms, size=size, version1=False)
         train_dl, valid_dl = get_dls(train_ds, valid_ds)
         train_dl = WrappedDataLoader(train_dl, mode)
         valid_dl = WrappedDataLoader(valid_dl, mode)
