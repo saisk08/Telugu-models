@@ -133,9 +133,30 @@ class Trainer():
         io.save(self.model, self.logger.full_path, self.logger.size)
 
 
+def create_finetuner(exp_id, sup_id, model_type, lr=3e-3, bs=32, size=30):
+    mode = 'supervised'
+    if model_type == 'resnet':
+        model = resnet.Telnet()
+    elif model_type == 'desne':
+        model = densenet.Telnet()
+    elif model_type == 'normal':
+        model = normal.Telnet()
+
+    model = io.load(model, sup_id, model_type, size)
+    train_ds = Supervised('train', transforms=tfms, size=size)
+    valid_ds = Supervised('val', transforms=tfms, size=size)
+    train_dl, valid_dl = get_dls(train_ds, valid_ds)
+    train_dl = WrappedDataLoader(train_dl, mode)
+    valid_dl = WrappedDataLoader(valid_dl, mode)
+    loss_func = nn.CrossEntropyLoss()
+    metric = metrics.cross_acc
+    log = logger.Logger(exp_id, 'tuned', model_type, size, lr, bs, None)
+    return Finetuner(model, train_dl, valid_dl, loss_func, lr, log, metric)
+
+
 class Finetuner():
     def __init__(self, model, train_dl, valid_dl, loss_func, lr, logger,
-                 metric, mode):
+                 metric):
         self.model = model
         self.train_dl = train_dl
         self.valid_dl = valid_dl
