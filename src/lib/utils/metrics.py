@@ -1,4 +1,5 @@
 import torch
+import torch.nn.functional as F
 
 
 def cross_acc(out, yb): return (
@@ -17,3 +18,14 @@ class RMSELoss(torch.nn.Module):
         self.eps = eps
 
     def forward(self, yhat, y): return torch.sqrt(self.mse(yhat, y) + self.eps)
+
+
+class RDLoss(torch.nn.Module):
+    '''Modified version of Contrastive loss'''
+
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, out1, out2, rdm):
+        euclidiean_distance = F.pairwise_distance(out1, out2)
+        return torch.mean(rdm - euclidiean_distance)
