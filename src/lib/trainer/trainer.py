@@ -110,11 +110,11 @@ class Trainer():
             with torch.no_grad():
                 tot_loss, tot_acc = 0., 0.
                 for x1b, x2b, rdm in self.val_dl:
-                out1 = self.model(x1b)
-                out2 = self.modle(x2b)
-                temp = self.loss_func(out1, out2, rdm)
-                tot_loss += temp
-                tot_acc += 1 - temp
+                    out1 = self.model(x1b)
+                    out2 = self.modle(x2b)
+                    temp = self.loss_func(out1, out2, rdm)
+                    tot_loss += temp
+                    tot_acc += 1 - temp
             nv = len(self.valid_dl)
             val_loss = tot_loss / nv
             acc = tot_acc / nv
@@ -133,7 +133,7 @@ class Trainer():
         io.save(self.model, self.logger.full_path, self.logger.size)
 
 
-def create_finetuner(exp_id, sia_id, model_type, lr=3e-3, bs=32, size=30, version):
+def create_finetuner(exp_id, sia_id, model_type, version, lr=3e-3, bs=32, size=30):
     mode = 'supervised'
     if model_type == 'resnet':
         model = resnet.Telnet()
