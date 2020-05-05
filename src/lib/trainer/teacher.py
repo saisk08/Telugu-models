@@ -23,19 +23,19 @@ class Teacher():
 
     def add_experiment(self, mode, model_type, size, lr, bs, epochs):
         if mode == 'supervised':
-            exp = {'trainer': create_trainer(
-                self.exp_id, mode, model_type, size=size, lr=lr, bs=bs),
-                'epochs': epochs}
+            exp = {'mode': mode, 'model_type': model_type, 'size': size,
+                   'lr': lr, 'bs': bs,
+                   'epochs': epochs, 'version': None}
             self.exps.append(exp)
             return
-        exp1 = {'trainer': create_trainer(
-                self.exp_id, mode, model_type, size=size, lr=lr, bs=bs, version=1),
-                'epochs': epochs}
-        exp2 = {'trainer': create_trainer(
-                self.exp_id, mode, model_type, size=size, lr=lr, bs=bs, version=2),
-                'epochs': epochs}
-        self.append(exp1)
-        self.append(exp2)
+        exp1 = {'mode': mode,
+                'model_type': model_type, 'size': size, 'lr': lr, 'bs': bs,
+                'version': 1,  'epochs': epochs}
+        exp2 = {'mode': mode,
+                'model_type': model_type, 'size': size, 'lr': lr, 'bs': bs,
+                'version': 2,  'epochs': epochs}
+        self.exps.append(exp1)
+        self.exps.append(exp2)
 
     def add_supervised(self, model_type, size, lr, bs, epochs):
         for mt in self.get_types(model_type):
@@ -49,4 +49,7 @@ class Teacher():
 
     def do_exps(self):
         for e in self.exps:
-            e['trainer'].fit(e['epochs'])
+            t = create_trainer(self.exp_id, e['mode'],
+                               e['model_type'], lr=e['lr'], bs=e['bs'],
+                               size=e['size'], version=e['version'])
+            t.fit(e['epochs'])

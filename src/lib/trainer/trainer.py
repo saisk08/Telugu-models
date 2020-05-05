@@ -42,10 +42,11 @@ def create_trainer(exp_id, mode, model_type, lr=3e-3, bs=32, size=30, version=No
         valid_dl = WrappedDataLoader(valid_dl, mode)
         loss_func = metrics.RMSELoss()
         metric = None
-
+    model = None
+    print(model_type)
     if model_type == 'resnet':
         model = resnet.Telnet()
-    elif model_type == 'desne':
+    elif model_type == 'dense':
         model = densenet.Telnet()
     elif model_type == 'normal':
         model = normal.Telnet()
@@ -62,6 +63,7 @@ class Trainer():
         self.loss_func = loss_func
         self.logger = logger
         self.metric = metric
+        self.mode = mode
         self.lr = lr
         self.logger.log_summary(self.model, (1, 32, 32))
         self.opt = optim.SGD(self.model.parameters(), lr=lr,
@@ -124,10 +126,10 @@ class Trainer():
 
     def fit(self, epochs):
         self.logger.log_info(epochs, self.lr)
-        if mode == 'supervised':
-            self.fit_supervised()
-        elif mode == 'siamese':
-            self.fit_siamese()
+        if self.mode == 'supervised':
+            self.fit_supervised(epochs)
+        elif self.mode == 'siamese':
+            self.fit_siamese(epochs)
 
         self.logger.done()
         io.save(self.model, self.logger.full_path, self.logger.size)
