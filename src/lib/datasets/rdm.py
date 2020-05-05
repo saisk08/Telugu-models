@@ -52,7 +52,6 @@ class Rdms(Dataset):
         if self.mode == 'train':
             cat = index // self.train.shape[2]
             ids = index // self.train.shape[0]
-            print(cat, ids, self.train.shape)
             img1, img2, label = self.train[cat, 0, ids], \
                 self.train[cat, 1, ids], self.rdm[cat]
         if self.mode == 'val':
