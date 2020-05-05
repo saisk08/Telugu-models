@@ -37,12 +37,12 @@ class Teacher():
         self.append(exp1)
         self.append(exp2)
 
-    def add_supervised(self, model_type, size, lr, bs):
+    def add_supervised(self, model_type, size, lr, bs, epochs):
         for mt in self.get_types(model_type):
             for s in self.get_sizes(size):
                 self.add_experiment('supervised', mt, s, lr, bs, epochs)
 
-    def add_siamese(info_list):
+    def add_siamese(self, model_type, size, lr, bs, epochs):
         for mt in self.get_types(model_type):
             for s in self.get_sizes(size):
                 self.add_experiment('siamese', mt, s, lr, bs, epochs)
