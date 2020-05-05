@@ -7,6 +7,7 @@ from datasets.rdm import Rdms
 from utils.data import WrappedDataLoader
 from networks import resnet, densenet, normal
 from utils import io, logger, metrics
+from fastprogress.fastprogress import master_bar, progress_bar
 
 
 def get_dls(train_ds, valid_ds, bs=16):
@@ -16,7 +17,8 @@ def get_dls(train_ds, valid_ds, bs=16):
     )
 
 
-def create_trainer(exp_id, mode, model_type, lr=3e-3, bs=32, size=30, version=None):
+def create_trainer(exp_id, mode, model_type, lr=3e-3, bs=32, size=30,
+                   version=None):
     tfms = transforms.Compose([
         transforms.ToTensor()
     ])
@@ -40,7 +42,7 @@ def create_trainer(exp_id, mode, model_type, lr=3e-3, bs=32, size=30, version=No
         train_dl, valid_dl = get_dls(train_ds, valid_ds)
         train_dl = WrappedDataLoader(train_dl, mode)
         valid_dl = WrappedDataLoader(valid_dl, mode)
-        loss_func = metrics.RMSELoss()
+        loss_func = metrics.RDLoss()
         metric = None
     model = None
     print(model_type)
@@ -73,9 +75,11 @@ class Trainer():
         self.model.to(self.device)
 
     def fit_supervised(self, epochs):
-        for epoch in range(epochs):
+        mb = master_bar(range(epochs))
+        for epoch in mb:
             self.model.train()
-            for xb, yb in self.train_dl:
+            for xb, yb in progress_bar(self.train_dl, parent=mb):
+                mb.child.comment = 'Train loop'
                 loss = self.loss_func(self.model(xb), yb)
                 loss.backward()
                 self.opt.step()
@@ -84,7 +88,8 @@ class Trainer():
             self.model.eval()
             with torch.no_grad():
                 tot_loss, tot_acc = 0., 0.
-                for xb, yb in self.valid_dl:
+                for xb, yb in progress_bar(self.valid_dl, parent=mb):
+                    mb.child.comment = 'Valid loop'
                     pred = self.model(xb)
                     temp = self.loss_func(pred, yb)
                     tot_loss += temp
@@ -93,16 +98,19 @@ class Trainer():
             nv = len(self.valid_dl)
             val_loss = tot_loss / nv
             acc = tot_acc / nv
-            print('Epoch: {}, train loss: {:.6f}, val loss: {:.6f}, Acc: {:.6f}'.format(
+            mb.write('Epoch: {}, train loss: {: .6f}, val loss: {: .6f}, \
+                     Acc: {: .6f}'.format(
                 epoch + 1, loss, val_loss, acc * 100))
             self.logger.log([loss, val_loss, acc])
 
     def fit_siamese(self, epochs):
-        for epoch in range(epochs):
+        mb = master_bar(range(epochs))
+        for epoch in mb:
             self.model.train()
-            for x1b, x2b, rdm in self.train_dl:
+            for x1b, x2b, rdm in progress_bar(self.train_dl, parent=mb):
+                mb.child.comment = 'Train loop'
                 out1 = self.model(x1b)
-                out2 = self.modle(x2b)
+                out2 = self.model(x2b)
                 loss = self.loss_func(out1, out2, rdm)
                 loss.backward()
                 self.opt.step()
@@ -111,16 +119,17 @@ class Trainer():
             self.model.eval()
             with torch.no_grad():
                 tot_loss, tot_acc = 0., 0.
-                for x1b, x2b, rdm in self.val_dl:
+                for x1b, x2b, rdm in progress_bar(self.valid_dl, parent=mb):
                     out1 = self.model(x1b)
-                    out2 = self.modle(x2b)
+                    out2 = self.model(x2b)
                     temp = self.loss_func(out1, out2, rdm)
                     tot_loss += temp
                     tot_acc += 1 - temp
             nv = len(self.valid_dl)
             val_loss = tot_loss / nv
             acc = tot_acc / nv
-            print('Epoch: {}, train loss: {:.6f}, val loss: {:.6f}, Acc: {:.6f}'.format(
+            mb.write('Epoch: {}, train loss: {: .6f}, val loss: {: .6f}, \
+                     Acc: {: .6f}'.format(
                 epoch + 1, loss, val_loss, acc * 100))
             self.logger.log([loss, val_loss, acc])
 
@@ -135,7 +144,11 @@ class Trainer():
         io.save(self.model, self.logger.full_path, self.logger.size)
 
 
-def create_finetuner(exp_id, sia_id, model_type, version, lr=3e-3, bs=32, size=30):
+def create_finetuner(exp_id, sia_id, model_type, version, lr=3e-3, bs=32,
+                     size=30):
+    tfms = transforms.Compose([
+        transforms.ToTensor()
+    ])
     mode = 'supervised'
     if model_type == 'resnet':
         model = resnet.Telnet()
@@ -195,7 +208,8 @@ class Finetuner():
             nv = len(self.valid_dl)
             val_loss = tot_loss / nv
             acc = tot_acc / nv
-            print('Epoch: {}, train loss: {:.6f}, val loss: {:.6f}, Acc: {:.6f}'.format(
+            print('Epoch: {}, train loss: {: .6f}, val loss: {: .6f}, \
+                  Acc: {: .6f}'.format(
                 epoch + 1, loss, val_loss, acc * 100))
             self.logger.log([loss, val_loss, acc])
 
