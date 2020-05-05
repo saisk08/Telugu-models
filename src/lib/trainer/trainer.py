@@ -45,7 +45,6 @@ def create_trainer(exp_id, mode, model_type, lr=3e-3, bs=32, size=30,
         loss_func = metrics.RDLoss()
         metric = None
     model = None
-    print(model_type)
     if model_type == 'resnet':
         model = resnet.Telnet()
     elif model_type == 'dense':
@@ -124,13 +123,12 @@ class Trainer():
                     out2 = self.model(x2b)
                     temp = self.loss_func(out1, out2, rdm)
                     tot_loss += temp
-                    tot_acc += 1 - temp
             nv = len(self.valid_dl)
             val_loss = tot_loss / nv
             acc = tot_acc / nv
-            mb.write('Epoch: {}, train loss: {: .6f}, val loss: {: .6f}, \
-                     Acc: {: .6f}'.format(
-                epoch + 1, loss, val_loss, acc * 100))
+            mb.write('Epoch: {}, train loss: {: .6f}, val loss: {: .6f}'
+                     .format(
+                         epoch + 1, loss, val_loss))
             self.logger.log([loss, val_loss, acc])
 
     def fit(self, epochs):
