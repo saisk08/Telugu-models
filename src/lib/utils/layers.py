@@ -13,8 +13,8 @@ def conv_block(in_channels, out_channels, kernel_size=3, stride=2, padding=1):
 class ResBlock(nn.Module):
     def __init__(self, channels):
         super().__init__()
-        self.conv1 = conv_block(channels, channels)
-        self.conv2 = conv_block(channels, channels)
+        self.conv1 = conv_block(channels, channels, stride=1)
+        self.conv2 = conv_block(channels, channels, stride=1)
 
     def forward(self, x): return x + self.conv2(self.conv1(x))
 
@@ -22,8 +22,8 @@ class ResBlock(nn.Module):
 class DenseBlock(nn.Module):
     def __init__(self, channels):
         super().__init__()
-        self.conv1 = conv_block(channels, channels)
-        self.conv2 = conv_block(channels, channels)
+        self.conv1 = conv_block(channels, channels, stride=1)
+        self.conv2 = conv_block(channels, channels, stride=1)
 
     def forward(self, x): return torch.cat(x, self.conv2(self.conv1(x)))
 

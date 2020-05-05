@@ -23,7 +23,7 @@ class Telnet(nn.Module):
             conv_and_res(8, 16),  # 8
             conv_and_res(16, 32),  # 4
             conv_and_res(32, 24),  # 2
-            nn.AdaptiveAvgPool2d(1)
+            nn.AdaptiveAvgPool2d(1),
             nn.Flatten()
         )
 
@@ -37,7 +37,7 @@ class Siameserdm(nn.Module):
             conv_and_res(1, 8),  # 16
             conv_and_res(8, 16),  # 8
             conv_and_res(16, 32),  # 4
-            conv_and_res(32, 64)  # 2
+            conv_and_res(32, 64),  # 2
             conv(64, 24)
         )
         self.classifier = nn.Sequential(

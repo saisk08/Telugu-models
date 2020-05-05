@@ -13,7 +13,7 @@ class Telnet(nn.Module):
             conv(8, 16),  # 8
             conv(16, 32),  # 4
             conv(32, 24),  # 2
-            nn.AdaptiveAvgPool2d(1)
+            nn.AdaptiveAvgPool2d(1),
             nn.Flatten()
         )
 
