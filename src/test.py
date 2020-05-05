@@ -1,5 +1,7 @@
 import _init_paths
-from trainer.runners import BasicTrainer
+from trainer.teacher import Teacher
 
-t = BasicTrainer(1e-3, 10, 'siamese', 'resnet', 'test_03')
-t.do_experiments()
+
+t = Teacher('new_test1')
+t.add_siamese('all', 'all', 1e-3, 32, 10)
+t.do_exps()
