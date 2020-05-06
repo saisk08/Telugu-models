@@ -3,14 +3,14 @@ from pathlib import Path
 import pickle
 import torch
 import numpy as np
-from scipy.spatial.distance import squareform
 import os
 
 
 class Rdms(Dataset):
     '''Dataset class for telugu chars; siamese learning with rdms'''
 
-    def __init__(self, mode=None, custom=True, version1=True, transforms=None, size=None):
+    def __init__(self, mode=None, custom=True, version1=True, transforms=None,
+                 size=None):
         super().__init__()
         this_file = os.path.dirname(__file__)
         self.path = Path('../../../data/siamese')
@@ -22,7 +22,8 @@ class Rdms(Dataset):
         self.train, self.val, self.test = pickle.load(f)
         f.close()
         self.train, self.val, self.test = self.train.astype(
-            np.uint8), self.val.astype(np.uint8), self.test.astype(np.uint8)
+            np.float32), self.val.astype(np.float32), \
+            self.test.astype(np.float32)
         # Because ta is not avaible
         if custom:
             f = open(self.path / 'rdms_custom_w.pkl', 'rb')

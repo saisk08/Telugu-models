@@ -20,7 +20,8 @@ class Siamese(Dataset):
             f = open(self.path / 'chars_{}.pkl'.format(size), 'rb')
         self.train, self.val, self.test = pickle.load(f)
         self.train, self.val, self.test = self.train.astype(
-            np.uint8), self.val.astype(np.uint8), self.test.astype(np.uint8)
+            np.float32), self.val.astype(np.float32), \
+            self.test.astype(np.float32)
         f.close()
         self.mode = mode
         self.tfms = transforms
