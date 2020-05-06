@@ -17,7 +17,19 @@ class RMSELoss(torch.nn.Module):
         self.mse = torch.nn.MSELoss()
         self.eps = eps
 
-    def forward(self, yhat, y): return torch.sqrt(self.mse(yhat, y) + self.eps)
+    def forward(self, y1, y2, y):
+        yhat = F.pairwise_distance(y1, y2)
+        return torch.sqrt(self.mse(yhat, y) + self.eps)
+
+
+class MSELoss(torch.nn.Module):
+    def __init__(self, eps=1e-6):
+        super().__init__()
+        self.mse = torch.nn.MSELoss()
+
+    def forward(self, y1, y2, y):
+        yhat = F.pairwise_distance(y1, y2)
+        return self.mse(yhat, y)
 
 
 class RDLoss(torch.nn.Module):
