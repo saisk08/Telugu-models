@@ -23,7 +23,6 @@ class Logger():
         else:
             self.full_path = self.base / self.exp_id / self.mode / \
                 self.model_type
-        print(self.full_path)
         self.loss_list = []
         os.makedirs(self.full_path, exist_ok=True)
 
