@@ -10,7 +10,9 @@ def supervised(x, y):
 def siamese(a, b, y):
     device = torch.device(
         'cuda' if torch.cuda.is_available() else 'cpu')
-    return a.view(-1, 1, 32, 32).to(device), b.view(-1, 1, 32, 32).to(device), y.to(device)
+    return a.view(-1, 1, 32, 32).to(device), \
+        b.view(-1, 1, 32, 32).to(device), \
+        y.to(device)
 
 
 class WrappedDataLoader:
@@ -28,3 +30,14 @@ class WrappedDataLoader:
         batches = iter(self.dl)
         for b in batches:
             yield (self.func(*b))
+
+
+class SiameseSampler():
+    def __init__(self, ds, bs, shuffle=False):
+        self.n, self.bs, self.shuffle = len(ds), bs, shuffle
+
+    def __iter__(self):
+        self.idxs1 = torch.randperm(self.n)
+        self.idxs2 = torch.randperm(self.n)
+        for i in range(0, self.n, self.bs):
+            yield self.idxs1[i:i+self.bs], self.idxs2[i:i+self.bs]
