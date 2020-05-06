@@ -154,9 +154,8 @@ def create_finetuner(exp_id, sia_id, model_type, version, lr=3e-3, bs=32,
         model = densenet.Telnet()
     elif model_type == 'normal':
         model = normal.Telnet()
-
-    model = io.load(model, sia_id, model_type, size,
-                    mode='siamese', version=version)
+    io.load(model, sia_id, model_type, size,
+            mode='siamese', version=version)
     train_ds = Supervised('train', transforms=tfms, size=size)
     valid_ds = Supervised('val', transforms=tfms, size=size)
     train_dl, valid_dl = get_dls(train_ds, valid_ds)
@@ -186,6 +185,7 @@ class Finetuner():
         self.model.to(self.device)
 
     def fit(self, epochs):
+        self.logger.log_info(epochs, self.lr)
         for epoch in range(epochs):
             self.model.train()
             for xb, yb in self.train_dl:
