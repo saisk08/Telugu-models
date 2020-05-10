@@ -97,9 +97,9 @@ class Trainer():
             nv = len(self.valid_dl)
             val_loss = tot_loss / nv
             acc = tot_acc / nv
-            mb.write('Epoch: {}, train loss: {: .6f}, val loss: {: .6f}, \
-                     Acc: {: .6f}'.format(
-                epoch + 1, loss, val_loss, acc * 100))
+            mb.write('Epoch: {:3}, train loss: {: .4f}, val loss: {: .4f}, '
+                     'Acc: {: .4f}%'.format(epoch + 1, loss,
+                                            val_loss, acc * 100))
             self.logger.log([loss, val_loss, acc])
 
     def fit_siamese(self, epochs):
@@ -139,7 +139,7 @@ class Trainer():
             self.fit_siamese(epochs)
 
         self.logger.done()
-        io.save(self.model, self.logger.full_path, self.logger.size)
+        io.save(self.model, self.logger.full_path)
 
 
 def create_finetuner(exp_id, model_type, version, lr=3e-3, bs=32,
