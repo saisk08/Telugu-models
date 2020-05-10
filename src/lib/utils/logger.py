@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 from datetime import datetime
 import numpy as np
 import os
+from tabulate import tabulate
 
 
 class Logger():
@@ -26,20 +27,8 @@ class Logger():
         self.loss_list = []
         os.makedirs(self.full_path, exist_ok=True)
 
-    def create_data(self):
-        f = open(self.full_path / 'data.txt', 'w+')
-        f.write('Mode: {}\n'.format(self.mode))
-        f.write('Model: {}\n'.format(self.model_type))
-        f.write('Exp ID: {}\n'.format(self.exp_id))
-        f.write('Epochs: {}\n'.format(self.epochs))
-        f.write('lr: {}\n'.format(self.lr))
-        f.write('Data size: {}\n'.format(self.size))
-        f.write('Batch size: {}\n'.format(self.bs))
-        f.write('RDM version: {}\n'.format(self.ver))
-        f.close()
-
     def log_summary(self, model, input_shape):
-        sum_file = open(self.full_path / 'summary.txt', 'w+')
+        sum_file = open(self.full_path / str(self.size) / 'summary.txt', 'w+')
         sum_file.write(
             str(summary(model, input_data=input_shape, verbose=0, depth=5)))
         sum_file.close()
@@ -49,11 +38,22 @@ class Logger():
 
     def log_info(self, epochs, lr):
         self.epochs = epochs
-        self.create_data()
-
-        print('\n\nModel: {}; Mode:{};  Size: {}\nEpochs: {}; lr: {}\n\n'
-              .format(
-                  self.model_type, self.mode, self.size, epochs, lr))
+        f = open(self.full_path / str(self.size) / 'data.txt', 'w+')
+        data = []
+        data.append(['Exp ID', self.exp_id])
+        data.append(['Model type', self.model_type])
+        data.append(['Mode', self.mode])
+        if self.ver is not None:
+            data.append(['Version', self.ver])
+        data.append(['Size', self.size])
+        data.append(['Epochs', epochs])
+        data.append(['Learing rate', lr])
+        data.append(['Batch size', self.bs])
+        a = tabulate(data)
+        f.write(a)
+        f.close()
+        print('\n\n' + a + '\n\n')
+        return
 
     def plot(self):
         a = np.arange(1, len(self.loss_list) + 1)
@@ -64,19 +64,22 @@ class Logger():
         plt.ylabel('Metrics')
         plt.title('{}; {}; {}'.format(self.exp_id, self.mode, self.model_type))
         plt.legend()
-        plt.savefig(self.full_path / 'loss_{}.png'.format(self.size))
+        plt.savefig(self.full_path / str(self.size) /
+                    'loss_{}.png'.format(self.size))
         plt.close()
         plt.plot(a, loss[:, 2] * 100, label='Accuracy')
         plt.title('{}; {}; {}'.format(self.exp_id, self.mode, self.model_type))
-        plt.savefig(self.full_path / 'acc_{}.png'.format(self.size))
+        plt.savefig(self.full_path / str(self.size) /
+                    'acc_{}.png'.format(self.size))
         plt.close()
 
     def add_result(self, val):
-        f = open(self.full_path / 'results.txt', 'a+')
+        f = open(self.full_path / str(self.size) / 'results.txt', 'a+')
         f.write('Size: {}, Accuarcy: {}, timestamp: {}'.format(
             self.size, val, datetime.now()))
         f.close()
 
     def done(self):
-        torch.save(self.loss_list, self.full_path / 'loss.pth')
+        torch.save(self.loss_list, self.full_path /
+                   str(self.size) / 'loss.pth')
         self.plot()
