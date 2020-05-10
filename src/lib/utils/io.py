@@ -12,5 +12,6 @@ def load(model, exp_id, model_type, size, mode='supervised', version=None):
                  exp_id, mode, str(version), model_type)
     else:
         p = Path(Path.cwd(), '../Logs', exp_id, mode, model_type)
-    model.load_state_dict(torch.load(p / 'model_{}.pth'.format(size)))
+    model.load_state_dict(torch.load(
+        p / str(size) / 'model_{}.pth'.format(size)))
     return
