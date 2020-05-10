@@ -142,7 +142,7 @@ class Trainer():
         io.save(self.model, self.logger.full_path, self.logger.size)
 
 
-def create_finetuner(exp_id, sia_id, model_type, version, lr=3e-3, bs=32,
+def create_finetuner(exp_id, model_type, version, lr=3e-3, bs=32,
                      size=30):
     tfms = transforms.Compose([
         transforms.ToTensor()
@@ -154,7 +154,7 @@ def create_finetuner(exp_id, sia_id, model_type, version, lr=3e-3, bs=32,
         model = densenet.Telnet()
     elif model_type == 'normal':
         model = normal.Telnet()
-    io.load(model, sia_id, model_type, size,
+    io.load(model, exp_id, model_type, size,
             mode='siamese', version=version)
     train_ds = Supervised('train', transforms=tfms, size=size)
     valid_ds = Supervised('val', transforms=tfms, size=size)
@@ -163,7 +163,7 @@ def create_finetuner(exp_id, sia_id, model_type, version, lr=3e-3, bs=32,
     valid_dl = WrappedDataLoader(valid_dl, mode)
     loss_func = nn.CrossEntropyLoss()
     metric = metrics.cross_acc
-    log = logger.Logger(exp_id, 'tuned', model_type, size, lr, bs, None)
+    log = logger.Logger(exp_id, 'tuned', model_type, size, lr, bs, version)
     return Finetuner(model, train_dl, valid_dl, loss_func, lr, log, metric)
 
 
