@@ -23,21 +23,18 @@ class RMSELoss(torch.nn.Module):
 
 
 class MSELoss(torch.nn.Module):
-    def __init__(self, eps=1e-6):
+    def __init__(self):
         super().__init__()
-        self.mse = torch.nn.MSELoss()
 
     def forward(self, y1, y2, y):
-        yhat = F.pairwise_distance(y1, y2)
-        return self.mse(yhat, y)
+        return torch.nn.MSELoss(F.pairwise_distance(y1, y2), y)
 
 
 class RDLoss(torch.nn.Module):
-    '''Modified version of Contrastive loss'''
+    '''Modified version of Contrastive loss, Same as L1 loss'''
 
     def __init__(self):
         super().__init__()
 
     def forward(self, out1, out2, rdm):
-        euclidiean_distance = F.pairwise_distance(out1, out2)
-        return torch.mean(rdm - euclidiean_distance)
+        return torch.mean(rdm - F.pairwise_distance(out1, out2))
