@@ -25,7 +25,8 @@ class DenseBlock(nn.Module):
         self.conv1 = conv_block(channels, channels, stride=1)
         self.conv2 = conv_block(channels, channels, stride=1)
 
-    def forward(self, x): return torch.cat(x, self.conv2(self.conv1(x)))
+    def forward(self, x): return torch.cat(
+        [self.conv2(self.conv1(x)), x], dim=1)
 
 
 def res_block(channels, dense=False):
