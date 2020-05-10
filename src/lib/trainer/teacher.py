@@ -48,6 +48,10 @@ class Teacher():
             for s in self.get_sizes(size):
                 self.add_experiment('siamese', mt, s, lr, bs, epochs)
 
+    def add_all(self, model_type, size, lr, bs, epochs):
+        self.add_siamese(model_type, size, lr, bs, epochs)
+        self.add_supervised(model_type, size, lr, bs, epochs)
+
     def do_exps(self):
         for e in self.exps:
             t = create_trainer(self.exp_id, e['mode'],
