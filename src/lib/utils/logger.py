@@ -20,15 +20,19 @@ class Logger():
         self.base = Path(Path.cwd(), '../Logs')
         if self.ver is not None:
             self.full_path = self.base / self.exp_id / \
-                self.mode / str(self.ver) / self.model_type
+                self.mode / str(self.ver) / self.model_type / str(self.size)
+            self.load_path = self.base / self.exp_id / \
+                'siamese' / str(self.ver) / self.model_type / str(self.size)
         else:
             self.full_path = self.base / self.exp_id / self.mode / \
-                self.model_type
+                self.model_type / str(self.size)
+            self.load_path = self.base / self.exp_id / 'siamese' / \
+                self.model_type / str(self.size)
         self.loss_list = []
         os.makedirs(self.full_path, exist_ok=True)
 
     def log_summary(self, model, input_shape):
-        sum_file = open(self.full_path / str(self.size) / 'summary.txt', 'w+')
+        sum_file = open(self.full_path / 'summary.txt', 'w+')
         sum_file.write(
             str(summary(model, input_data=input_shape, verbose=0, depth=5)))
         sum_file.close()
@@ -38,7 +42,7 @@ class Logger():
 
     def log_info(self, epochs, lr):
         self.epochs = epochs
-        f = open(self.full_path / str(self.size) / 'data.txt', 'w+')
+        f = open(self.full_path / 'data.txt', 'w+')
         data = []
         data.append(['Exp ID', self.exp_id])
         data.append(['Model type', self.model_type])
@@ -64,22 +68,19 @@ class Logger():
         plt.ylabel('Metrics')
         plt.title('{}; {}; {}'.format(self.exp_id, self.mode, self.model_type))
         plt.legend()
-        plt.savefig(self.full_path / str(self.size) /
-                    'loss_{}.png'.format(self.size))
+        plt.savefig(self.full_path / 'loss_graph.png')
         plt.close()
         plt.plot(a, loss[:, 2] * 100, label='Accuracy')
         plt.title('{}; {}; {}'.format(self.exp_id, self.mode, self.model_type))
-        plt.savefig(self.full_path / str(self.size) /
-                    'acc_{}.png'.format(self.size))
+        plt.savefig(self.full_path / 'acc_graph.png')
         plt.close()
 
     def add_result(self, val):
-        f = open(self.full_path / str(self.size) / 'results.txt', 'a+')
+        f = open(self.full_path / 'results.txt', 'a+')
         f.write('Size: {}, Accuarcy: {}, timestamp: {}'.format(
             self.size, val, datetime.now()))
         f.close()
 
     def done(self):
-        torch.save(self.loss_list, self.full_path /
-                   str(self.size) / 'loss.pth')
+        torch.save(self.loss_list, self.full_path / 'loss_vals.pth')
         self.plot()
