@@ -1,9 +1,8 @@
 import _init_paths
 from trainer.teacher import Teacher
-from trainer.trainer import create_finetuner
 
 
-t = Teacher('new_test1')
+t = Teacher('new_test2')
 t.add_supervised('dense', 'all', 1e-3, 32, 10)
 t.do_exps()
 
