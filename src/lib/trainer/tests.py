@@ -2,7 +2,6 @@ import torch
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from datasets.supervised import Supervised
-from datasets.rdm import Rdms
 from networks import resnet, densenet, normal
 from utils.data import WrappedDataLoader
 from utils import io, logger, metrics
