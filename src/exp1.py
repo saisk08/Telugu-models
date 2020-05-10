@@ -10,7 +10,7 @@ No similar images shown
 exp_name = 'exp1-batch32'
 
 t = Teacher(exp_name)
-t.add_add('all', 'all', 1e-3, 32, 10)
+t.add_all('all', 'all', 1e-3, 32, 10)
 t.do_exps()
 
 s = Fineteacher(exp_name)
