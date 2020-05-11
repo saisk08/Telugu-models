@@ -101,7 +101,7 @@ class Trainer():
             mb.write('Epoch: {:3}, train loss: {: .4f}, val loss: {: .4f}, '
                      'Acc: {: .4f}%'.format(epoch + 1, loss,
                                             val_loss, acc * 100))
-            self.logger.log([loss, val_loss, acc * 100])
+            self.logger.log([loss.cpu(), val_loss.cpu(), acc.cpu() * 100])
 
     def fit_siamese(self, epochs):
         mb = master_bar(range(epochs))
@@ -130,7 +130,7 @@ class Trainer():
             mb.write('Epoch: {}, train loss: {: .6f}, val loss: {: .6f}'
                      .format(
                          epoch + 1, loss, val_loss))
-            self.logger.log([loss, val_loss, acc * 100])
+            self.logger.log([loss.cpu(), val_loss.cpu(), acc.cpu() * 100])
 
     def fit(self, epochs):
         self.logger.log_info(epochs, self.lr)
@@ -213,7 +213,7 @@ class Finetuner():
             mb.write('Epoch: {:3}, train loss: {: .4f}, val loss: {: .4f}, '
                      'Acc: {: .4f}%'.format(epoch + 1, loss,
                                             val_loss, acc * 100))
-            self.logger.log([loss, val_loss, acc * 100])
+            self.logger.log([loss.cpu(), val_loss.cpu(), acc.cpu() * 100])
 
         self.logger.done()
         io.save(self.model, self.logger.full_path)
