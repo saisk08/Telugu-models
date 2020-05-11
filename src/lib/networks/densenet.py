@@ -19,7 +19,7 @@ class Telnet(nn.Module):
     def __init__(self):
         super().__init__()
         self.net = nn.Sequential(
-            conv_and_dense(1, 8),  # 16
+            conv_and_dense(1, 8, kernel_size=5, stride=2, padding=2),  # 16
             conv_and_dense(8*2, 16),  # 8
             conv_and_dense(16*2, 32),  # 4
             conv_and_dense(32*2, 24),  # 2
