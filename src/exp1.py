@@ -16,3 +16,7 @@ t.do_exps()
 s = Fineteacher(exp_name)
 s.add_all('all', 'all', 5e-2, 32, 10)
 s.do_exps()
+
+s = Fineteacher('fine1-batch32', exp_name)
+s.add_all('all', 'all', 1e-2, 32, 10)
+s.do_exps()
