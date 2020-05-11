@@ -212,6 +212,7 @@ class Finetuner():
             mb.write('Epoch: {:3}, train loss: {: .4f}, val loss: {: .4f}, '
                      'Acc: {: .4f}%'.format(epoch + 1, loss,
                                             val_loss, acc * 100))
+            self.logger.log([loss, val_loss, acc])
 
         self.logger.done()
         io.save(self.model, self.logger.full_path)
