@@ -152,7 +152,7 @@ def create_finetuner(exp_id, model_type, version, lr=3e-3, bs=32,
     model = None
     if model_type == 'resnet':
         model = resnet.Telnet()
-    elif model_type == 'desne':
+    elif model_type == 'dense':
         model = densenet.Telnet()
     elif model_type == 'normal':
         model = normal.Telnet()
