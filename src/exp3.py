@@ -7,7 +7,7 @@ Run experiments with batch side of 32
 Use L1 loss for Siamese
 No similar images shown
 '''
-exp_name = 'exp1-batch32'
+exp_name = 'exp3-batch32-l1'
 
 t = Teacher(exp_name)
 t.add_all('all', 'all', 1e-3, 32, 10)
