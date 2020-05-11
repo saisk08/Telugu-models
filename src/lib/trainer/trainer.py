@@ -42,7 +42,7 @@ def create_trainer(exp_id, mode, model_type, lr=3e-3, bs=32, size=30,
         train_dl, valid_dl = get_dls(train_ds, valid_ds)
         train_dl = WrappedDataLoader(train_dl, mode)
         valid_dl = WrappedDataLoader(valid_dl, mode)
-        loss_func = metrics.RDLoss()
+        loss_func = metrics.L1Loss()
         metric = None
     model = None
     if model_type == 'resnet':

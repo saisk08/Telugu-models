@@ -4,7 +4,7 @@ from trainer.teacher import Teacher, Fineteacher
 
 '''
 Run experiments with batch side of 32
-Use L1/RD loss for Siamese
+Use RD loss for Siamese
 No similar images shown
 '''
 exp_name = 'exp1-batch32'

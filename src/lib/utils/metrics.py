@@ -30,6 +30,14 @@ class MSELoss(torch.nn.Module):
         return torch.nn.MSELoss(F.pairwise_distance(y1, y2), y)
 
 
+class L1Loss(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, y1, y2, y):
+        return torch.nn.L1Loss(F.pairwise_distance(y1, y2), y)
+
+
 class RDLoss(torch.nn.Module):
     '''Modified version of Contrastive loss, Same as L1 loss'''
 
