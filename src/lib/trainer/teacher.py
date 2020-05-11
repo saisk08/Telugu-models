@@ -63,7 +63,7 @@ class Teacher():
 class Fineteacher():
     def __init__(self, exp_id, sia_id=None):
         self.exp_id = exp_id
-        self.sia_id = None
+        self.sia_id = sia_id
         self.exps = []
         self.data_size = [30, 50, 100, 150, 200]
 
