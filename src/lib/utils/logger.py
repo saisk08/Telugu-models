@@ -72,10 +72,12 @@ class Logger():
         plt.legend()
         plt.savefig(self.full_path / 'loss_graph.png')
         plt.close()
-        plt.plot(a, loss[:, 2] * 100, label='Accuracy')
-        plt.title('{}; {}; {}'.format(self.exp_id, self.mode, self.model_type))
-        plt.savefig(self.full_path / 'acc_graph.png')
-        plt.close()
+        if self.mode != 'siamese':
+            plt.plot(a, loss[:, 2], label='Accuracy')
+            plt.title('{}; {}; {}'.format(
+                self.exp_id, self.mode, self.model_type))
+            plt.savefig(self.full_path / 'acc_graph.png')
+            plt.close()
 
     def add_result(self, val):
         f = open(self.full_path / 'results.txt', 'a+')
