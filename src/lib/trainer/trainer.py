@@ -144,7 +144,7 @@ class Trainer():
 
 
 def create_finetuner(exp_id, model_type, version, lr=3e-3, bs=32,
-                     size=30):
+                     size=30, sia_id=None):
     tfms = transforms.Compose([
         transforms.ToTensor()
     ])
@@ -164,7 +164,8 @@ def create_finetuner(exp_id, model_type, version, lr=3e-3, bs=32,
     valid_dl = WrappedDataLoader(valid_dl, mode)
     loss_func = nn.CrossEntropyLoss()
     metric = metrics.cross_acc
-    log = logger.Logger(exp_id, 'tuned', model_type, size, lr, bs, version)
+    log = logger.Logger(exp_id, 'tuned', model_type, size,
+                        lr, bs, version, sia_id=sia_id)
     io.load(model, log.load_path)
     return Finetuner(model, train_dl, valid_dl, loss_func, lr, log, metric)
 

@@ -61,8 +61,9 @@ class Teacher():
 
 
 class Fineteacher():
-    def __init__(self, exp_id):
+    def __init__(self, exp_id, sia_id=None):
         self.exp_id = exp_id
+        self.sia_id = None
         self.exps = []
         self.data_size = [30, 50, 100, 150, 200]
 
@@ -99,5 +100,5 @@ class Fineteacher():
         for e in self.exps:
             t = create_finetuner(self.exp_id, e['model_type'], lr=e['lr'],
                                  bs=e['bs'], size=e['size'],
-                                 version=e['version'])
+                                 version=e['version'], sia_id=self.sia_id)
             t.fit(e['epochs'])

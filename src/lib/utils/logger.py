@@ -9,8 +9,10 @@ from tabulate import tabulate
 
 
 class Logger():
-    def __init__(self, exp_id, mode, model_type, size, lr, bs, version):
+    def __init__(self, exp_id, mode, model_type, size, lr, bs, version,
+                 sia_id=None):
         self.exp_id = exp_id
+        self.sia_id = sia_id if sia_id is not None else exp_id
         self.mode = mode
         self. model_type = model_type
         self.size = size
@@ -21,12 +23,12 @@ class Logger():
         if self.ver is not None:
             self.full_path = self.base / self.exp_id / \
                 self.mode / str(self.ver) / self.model_type / str(self.size)
-            self.load_path = self.base / self.exp_id / \
+            self.load_path = self.base / self.sia_id / \
                 'siamese' / str(self.ver) / self.model_type / str(self.size)
         else:
             self.full_path = self.base / self.exp_id / self.mode / \
                 self.model_type / str(self.size)
-            self.load_path = self.base / self.exp_id / 'siamese' / \
+            self.load_path = self.base / self.sia_id / 'siamese' / \
                 self.model_type / str(self.size)
         self.loss_list = []
         os.makedirs(self.full_path, exist_ok=True)
