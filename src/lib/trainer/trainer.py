@@ -118,7 +118,7 @@ class Trainer():
 
             self.model.eval()
             with torch.no_grad():
-                tot_loss, tot_acc = 0., 0.
+                tot_loss = 0.
                 for x1b, x2b, rdm in progress_bar(self.valid_dl, parent=mb):
                     out1 = self.model(x1b)
                     out2 = self.model(x2b)
@@ -126,11 +126,10 @@ class Trainer():
                     tot_loss += temp
             nv = len(self.valid_dl)
             val_loss = tot_loss / nv
-            acc = tot_acc / nv
             mb.write('Epoch: {}, train loss: {: .6f}, val loss: {: .6f}'
                      .format(
                          epoch + 1, loss, val_loss))
-            self.logger.log([loss.cpu(), val_loss.cpu(), acc.cpu() * 100])
+            self.logger.log([loss.cpu(), val_loss.cpu()])
 
     def fit(self, epochs):
         self.logger.log_info(epochs, self.lr)
