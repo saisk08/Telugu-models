@@ -51,6 +51,7 @@ def create_trainer(exp_id, mode, model_type, lr=3e-3, bs=32, size=30,
         model = densenet.Telnet()
     elif model_type == 'normal':
         model = normal.Telnet()
+    assert(model is not None)
     log = logger.Logger(exp_id, mode, model_type, size, lr, bs, version)
     return Trainer(model, train_dl, valid_dl, loss_func, lr, log, metric, mode)
 
@@ -148,12 +149,14 @@ def create_finetuner(exp_id, model_type, version, lr=3e-3, bs=32,
         transforms.ToTensor()
     ])
     mode = 'supervised'
+    model = None
     if model_type == 'resnet':
         model = resnet.Telnet()
     elif model_type == 'desne':
         model = densenet.Telnet()
     elif model_type == 'normal':
         model = normal.Telnet()
+    assert(model is not None)
     train_ds = Supervised('train', transforms=tfms, size=size)
     valid_ds = Supervised('val', transforms=tfms, size=size)
     train_dl, valid_dl = get_dls(train_ds, valid_ds)
@@ -162,9 +165,7 @@ def create_finetuner(exp_id, model_type, version, lr=3e-3, bs=32,
     loss_func = nn.CrossEntropyLoss()
     metric = metrics.cross_acc
     log = logger.Logger(exp_id, 'tuned', model_type, size, lr, bs, version)
-    print('Loading model...')
     io.load(model, log.load_path)
-    print('Loaded model')
     return Finetuner(model, train_dl, valid_dl, loss_func, lr, log, metric)
 
 
@@ -187,9 +188,10 @@ class Finetuner():
 
     def fit(self, epochs):
         self.logger.log_info(epochs, self.lr)
-        for epoch in range(epochs):
+        mb = master_bar(range(epochs))
+        for epoch in mb:
             self.model.train()
-            for xb, yb in self.train_dl:
+            for xb, yb in progress_bar(self.train_dl, parent=mb):
                 loss = self.loss_func(self.model(xb), yb)
                 loss.backward()
                 self.opt.step()
@@ -198,7 +200,7 @@ class Finetuner():
             self.model.eval()
             with torch.no_grad():
                 tot_loss, tot_acc = 0., 0.
-                for xb, yb in self.valid_dl:
+                for xb, yb in progress_bar(self.valid_dl, parent=mb):
                     pred = self.model(xb)
                     temp = self.loss_func(pred, yb)
                     tot_loss += temp
@@ -207,10 +209,9 @@ class Finetuner():
             nv = len(self.valid_dl)
             val_loss = tot_loss / nv
             acc = tot_acc / nv
-            print('Epoch: {}, train loss: {: .6f}, val loss: {: .6f}, \
-                  Acc: {: .6f}'.format(
-                epoch + 1, loss, val_loss, acc * 100))
-            self.logger.log([loss, val_loss, acc])
+            mb.write('Epoch: {:3}, train loss: {: .4f}, val loss: {: .4f}, '
+                     'Acc: {: .4f}%'.format(epoch + 1, loss,
+                                            val_loss, acc * 100))
 
         self.logger.done()
         io.save(self.model, self.logger.full_path)
