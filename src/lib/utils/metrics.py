@@ -47,4 +47,4 @@ class RDLoss(torch.nn.Module):
         super().__init__()
 
     def forward(self, out1, out2, rdm):
-        return torch.mean(rdm - F.pairwise_distance(out1, out2))
+        return torch.mean(torch.sub(rdm, F.pairwise_distance(out1, out1)))
