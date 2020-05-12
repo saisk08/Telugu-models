@@ -41,10 +41,10 @@ class L1Loss(torch.nn.Module):
 
 
 class RDLoss(torch.nn.Module):
-    '''Modified version of Contrastive loss, Same as L1 loss'''
+    '''Modified version of Contrastive loss; Unbounded loss'''
 
     def __init__(self):
         super().__init__()
 
     def forward(self, out1, out2, rdm):
-        return torch.mean(torch.sub(rdm, F.pairwise_distance(out1, out1)))
+        return torch.mean(torch.sub(rdm, F.pairwise_distance(out1, out2)))
