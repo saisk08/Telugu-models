@@ -70,5 +70,6 @@ class Rdms(Dataset):
         if self.tfms is not None:
             img1 = self.tfms(img1)
             img2 = self.tfms(img2)
+            label = torch.tensor(label).float()
 
         return img1, img2, label
